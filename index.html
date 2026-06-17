@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Corporate Trivia Challenge</title>
+  <title>CEO Simulator: Corporate Strategy Challenge</title>
   
   <!-- CSS & UI Frameworks -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -18,12 +18,13 @@
         extend: {
           colors: {
             brand: {
-              dark: '#070a13',
-              card: '#0f1626',
+              dark: '#05070f',
+              card: '#0d111d',
               accent: '#6366f1',
               accentHover: '#4f46e5',
               success: '#10b981',
-              warning: '#f59e0b'
+              warning: '#f59e0b',
+              danger: '#ef4444'
             }
           }
         }
@@ -35,48 +36,62 @@
     [v-cloak] { display: none !important; }
     body {
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background-color: #070a13;
+      background-color: #05070f;
     }
     .neon-border {
-      box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 0 25px rgba(99, 102, 241, 0.15);
     }
     .neon-glow {
-      text-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+      text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
     }
-    .fade-enter-active, .fade-leave-active {
-      transition: opacity 0.3s ease;
+    .metric-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .fade-enter-from, .fade-leave-to {
-      opacity: 0;
+    .metric-card:hover {
+      transform: translateY(-2px);
+    }
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #05070f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
     }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="text-slate-100 min-h-screen flex items-center justify-center p-2 md:p-4">
 
-  <div id="app" v-cloak class="w-full max-w-lg">
+  <div id="app" v-cloak class="w-full max-w-xl">
     
-    <!-- ระบบแจ้งเตือนด่วน (Toast Alert) -->
+    <!-- ระบบแจ้งเตือนข้อมูลและผลลัพธ์การตัดสินใจ (Toast system) -->
     <transition name="fade">
       <div v-if="toast.show" 
-           :class="['fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 text-sm font-semibold border transition-all', 
+           :class="['fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm font-semibold border transition-all max-w-sm w-11/12', 
                     toast.type === 'success' ? 'bg-emerald-950/95 border-emerald-500 text-emerald-300' : 'bg-rose-950/95 border-rose-500 text-rose-300']">
-        <i :class="toast.type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation'"></i>
-        <span>{{ toast.message }}</span>
+        <i :class="toast.type === 'success' ? 'fa-solid fa-circle-check text-lg' : 'fa-solid fa-circle-exclamation text-lg'"></i>
+        <div class="flex-1 text-xs md:text-sm">{{ toast.message }}</div>
       </div>
     </transition>
 
-    <!-- หน้าต่างควบคุมหลักของตัวเกม (Main Card Container) -->
-    <div class="bg-brand-card rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-800/80 relative overflow-hidden neon-border">
+    <!-- หน้าต่างควบคุมหลักของตัวเกม (Main Card Interface) -->
+    <div class="bg-brand-card rounded-3xl p-5 md:p-8 shadow-2xl border border-slate-800/80 relative overflow-hidden neon-border">
       
-      <!-- เอฟเฟกต์แสงไฟพื้นหลัง (Ambient Glow) -->
-      <div class="absolute -top-32 -right-32 w-64 h-64 bg-brand-accent/20 blur-[100px] rounded-full pointer-events-none"></div>
-      <div class="absolute -bottom-32 -left-32 w-64 h-64 bg-pink-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+      <!-- เอฟเฟกต์บรรยากาศล้ำสมัย (Ambient Lights) -->
+      <div class="absolute -top-32 -right-32 w-64 h-64 bg-brand-accent/20 blur-[120px] rounded-full pointer-events-none"></div>
+      <div class="absolute -bottom-32 -left-32 w-64 h-64 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none"></div>
 
       <!-- 1. หน้าล็อกอินเข้าสู่ระบบ (Login Screen) -->
       <div v-if="view === 'login'" class="text-center space-y-8 py-6">
         <div class="relative inline-block">
           <div class="w-24 h-24 bg-brand-accent/20 rounded-3xl flex items-center justify-center mx-auto border border-brand-accent/30 shadow-inner">
-            <i class="fa-solid fa-gamepad text-5xl text-brand-accent neon-glow"></i>
+            <i class="fa-solid fa-briefcase text-5xl text-brand-accent neon-glow"></i>
           </div>
           <span class="absolute -bottom-1 -right-1 flex h-4 w-4">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -86,39 +101,39 @@
 
         <div class="space-y-2">
           <h1 class="text-3xl font-black tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            TRIVIA CHALLENGE
+            CEO SIMULATOR
           </h1>
-          <p class="text-sm text-slate-400">ระบบเกมนวัตกรรมเรียนรู้ค่านิยมและข้อมูลองค์กร</p>
+          <p class="text-sm text-slate-400">เกมจำลองแผนยุทธศาสตร์การบริหารองค์กรยุคใหม่</p>
         </div>
 
         <div class="space-y-4 pt-4">
           <!-- ปุ่มล็อกอินผ่าน Google Workspace (พนักงานเข้าใช้ผ่านบัญชีบริษัท) -->
           <button @click="loginWithGoogle" :disabled="authLoading"
-                  class="w-full bg-brand-accent hover:bg-brand-accentHover active:scale-[0.98] py-4 rounded-2xl font-bold transition-all flex items-center justify-center space-x-3 shadow-lg shadow-brand-accent/35">
+                  class="w-full bg-brand-accent hover:bg-brand-accentHover active:scale-[0.98] py-4 rounded-2xl font-bold transition-all flex items-center justify-center space-x-3 shadow-lg shadow-brand-accent/35 text-sm md:text-base">
             <i class="fa-brands fa-google text-lg"></i>
-            <span>{{ authLoading ? 'กำลังเตรียมการระบบ...' : 'เข้าใช้ผ่าน Google Workspace' }}</span>
+            <span>{{ authLoading ? 'กำลังตรวจสอบระบบ...' : 'เข้าใช้ผ่าน Google Workspace' }}</span>
           </button>
 
           <!-- ปุ่มจำลองเล่นด่วนสำหรับทดสอบระบบ (Anonymous Guest Mode) -->
           <button @click="loginAnonymously" :disabled="authLoading"
-                  class="w-full bg-slate-850 hover:bg-slate-800 active:scale-[0.98] py-4 rounded-2xl font-bold transition-all flex items-center justify-center space-x-3 border border-slate-700/70 text-slate-300">
-            <i class="fa-solid fa-user-secret"></i>
-            <span>ทดลองเล่นแบบด่วน (Guest Mode)</span>
+                  class="w-full bg-slate-850 hover:bg-slate-800 active:scale-[0.98] py-4 rounded-2xl font-bold transition-all flex items-center justify-center space-x-3 border border-slate-700/70 text-slate-300 text-sm md:text-base">
+            <i class="fa-solid fa-user-tie"></i>
+            <span>ทดลองบริหารด่วน (Guest Mode)</span>
           </button>
         </div>
 
-        <p class="text-xs text-slate-500">จำกัดสิทธิ์เฉพาะบุคลากรภายในเครือข่ายองค์กรเท่านั้น</p>
+        <p class="text-xs text-slate-500">สำหรับจำลองสิทธิ์การตัดสินใจเชิงกลยุทธ์ภายในบริษัทเท่านั้น</p>
       </div>
 
-      <!-- 2. หน้าแนะนำรายละเอียดก่อนเริ่มเล่น (Lobby Screen) -->
-      <div v-if="view === 'intro'" class="space-y-6 py-4">
+      <!-- 2. หน้าแนะนำภารกิจและกติกา (Lobby Screen) -->
+      <div v-if="view === 'intro'" class="space-y-6 py-2">
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-brand-accent">
+            <div class="w-10 h-10 rounded-full bg-slate-850 border border-slate-800 flex items-center justify-center text-brand-accent">
               <i class="fa-solid fa-user-astronaut text-lg"></i>
             </div>
             <div>
-              <p class="text-xs text-slate-400">ผู้เข้าร่วมการแข่งขัน</p>
+              <p class="text-xs text-slate-500">บัญชีผู้บริหาร</p>
               <p class="text-sm font-bold text-slate-200 truncate max-w-[180px]">{{ userDisplayName }}</p>
             </div>
           </div>
@@ -130,111 +145,179 @@
 
         <div class="space-y-4">
           <h2 class="text-lg font-bold text-slate-200 flex items-center">
-            <i class="fa-solid fa-circle-info mr-2 text-brand-accent"></i> กติกาชิงรางวัลเกียรติยศ
+            <i class="fa-solid fa-circle-info mr-2 text-brand-accent"></i> เป้าหมายและกติกาบทบาท CEO
           </h2>
           <div class="grid gap-3 text-sm text-slate-400">
             <div class="flex items-start space-x-3 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
-              <i class="fa-solid fa-clock text-brand-accent mt-1"></i>
-              <p>แต่ละข้อมีเวลาตอบคำถามเพียง <b>15 วินาที</b> ยิ่งคิดเร็ว ตอบเร็ว จะยิ่งคูณแต้มโบนัสความไวมากขึ้น!</p>
+              <i class="fa-solid fa-scale-balanced text-brand-accent mt-1"></i>
+              <p>คุณต้องบริหารทรัพยากร 4 ด้าน: <b>เงินทุน, พลังทีมงาน, นวัตกรรม, และชื่อเสียง</b> ไม่ให้ด้านใดลดลงเหลือ 0%</p>
             </div>
             <div class="flex items-start space-x-3 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
-              <i class="fa-solid fa-award text-brand-accent mt-1"></i>
-              <p>คะแนนเต็มฐานข้อละ 1,000 คะแนน + คะแนนโบนัสเวลาสูงสุดอีกข้อละ 500 คะแนน</p>
+              <i class="fa-solid fa-chart-line text-brand-accent mt-1"></i>
+              <p>ในแต่ละไตรมาสคุณจะพบวิกฤต/โอกาส ให้เลือกทางออกที่เหมาะสมเพื่อเพิ่ม <b>มูลค่าบริษัท (Valuation)</b></p>
             </div>
             <div class="flex items-start space-x-3 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
-              <i class="fa-solid fa-shield-halved text-brand-accent mt-1"></i>
-              <p>ข้อมูลทั้งหมดบันทึกลงสู่เซิร์ฟเวอร์แบบเรียลไทม์เพื่อจัดอันดับผู้เล่นสูงสุดประจำเดือน</p>
+              <i class="fa-solid fa-business-time text-brand-accent mt-1"></i>
+              <p>มีเวลาตัดสินใจทั้งหมด 6 ไตรมาส (6 Quarters) เพื่อพิสูจน์ฝีมือการเป็นสุดยอด CEO ชั้นนำ</p>
             </div>
           </div>
         </div>
 
         <button @click="startGame" 
                 class="w-full bg-brand-accent hover:bg-brand-accentHover text-white py-4 rounded-2xl font-bold text-lg transition-all shadow-lg active:scale-[0.98]">
-          เริ่มประลองความรู้ <i class="fa-solid fa-play ml-2"></i>
+          รับตำแหน่ง CEO และเริ่มเกม <i class="fa-solid fa-arrow-right ml-2"></i>
         </button>
       </div>
 
-      <!-- 3. หน้าจอสมรภูมิการเล่นเกม (Gameplay Screen) -->
+      <!-- 3. หน้ากระดานบอร์ดผู้บริหาร (Gameplay Dashboard) -->
       <div v-if="view === 'play'" class="space-y-6">
-        <!-- แผงแสดงสถิติคะแนนและข้อ -->
+        <!-- แถบแสดงสถานะด้านบน -->
         <div class="flex justify-between items-center">
-          <div class="px-3 py-1.5 bg-slate-850 rounded-full text-xs font-bold text-slate-400 border border-slate-800">
-            ความคืบหน้า: ข้อที่ {{ currentIdx + 1 }} / {{ questions.length }}
+          <div class="px-4 py-1.5 bg-slate-850 rounded-full text-xs font-bold text-slate-300 border border-slate-800 flex items-center space-x-2">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+            </span>
+            <span>ไตรมาสที่ {{ currentIdx + 1 }} / 6</span>
           </div>
           <div class="text-right">
-            <span class="text-xs text-slate-500 block uppercase font-bold tracking-wider">SCORE</span>
-            <span class="text-2xl font-black text-amber-400 neon-glow">{{ score }}</span>
+            <span class="text-[10px] text-slate-500 block uppercase font-bold tracking-wider">มูลค่าบริษัทปัจจุบัน</span>
+            <span class="text-xl md:text-2xl font-black text-amber-400 neon-glow">฿{{ formatValuation(calculateValuation()) }}</span>
           </div>
         </div>
 
-        <!-- แถบจับเวลาถอยหลัง (Timer Bar) -->
-        <div class="space-y-1.5">
-          <div class="flex justify-between text-xs font-semibold text-slate-400">
-            <span>เวลาการวิเคราะห์โจทย์</span>
-            <span :class="['font-bold', timer <= 5 ? 'text-rose-400 animate-pulse' : 'text-slate-400']">{{ timer }} วินาที</span>
+        <!-- แผงแสดงสถิติวัดค่าทรัพยากรทั้ง 4 (Interactive Metrics Grid) -->
+        <div class="grid grid-cols-2 gap-3">
+          <!-- 1. Budget -->
+          <div class="metric-card bg-slate-900/80 p-3 rounded-2xl border border-slate-800 flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[11px] font-bold text-slate-400 uppercase">งบประมาณ</span>
+              <i class="fa-solid fa-wallet text-emerald-400 text-sm"></i>
+            </div>
+            <div>
+              <span class="text-sm md:text-base font-black text-emerald-400">฿{{ formatValuation(resources.budget) }}</span>
+              <div class="h-1.5 bg-slate-950 rounded-full overflow-hidden mt-1.5">
+                <div class="h-full bg-emerald-500 rounded-full transition-all duration-500" :style="{ width: getPercentage(resources.budget, 200000) + '%' }"></div>
+              </div>
+            </div>
           </div>
-          <div class="h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-            <div class="h-full bg-gradient-to-r from-indigo-500 to-brand-accent rounded-full transition-all duration-1000 ease-linear" 
-                 :class="{'bg-rose-500': timer <= 5}"
-                 :style="{ width: (timer / 15) * 100 + '%' }"></div>
+
+          <!-- 2. Talent -->
+          <div class="metric-card bg-slate-900/80 p-3 rounded-2xl border border-slate-800 flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[11px] font-bold text-slate-400 uppercase">พลังทีมงาน</span>
+              <i class="fa-solid fa-users-gear text-indigo-400 text-sm"></i>
+            </div>
+            <div>
+              <span class="text-sm md:text-base font-black text-indigo-400">{{ resources.talent }}%</span>
+              <div class="h-1.5 bg-slate-950 rounded-full overflow-hidden mt-1.5">
+                <div class="h-full bg-indigo-500 rounded-full transition-all duration-500" :style="{ width: resources.talent + '%' }"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Innovation -->
+          <div class="metric-card bg-slate-900/80 p-3 rounded-2xl border border-slate-800 flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[11px] font-bold text-slate-400 uppercase">นวัตกรรม</span>
+              <i class="fa-solid fa-lightbulb text-cyan-400 text-sm"></i>
+            </div>
+            <div>
+              <span class="text-sm md:text-base font-black text-cyan-400">{{ resources.innovation }}%</span>
+              <div class="h-1.5 bg-slate-950 rounded-full overflow-hidden mt-1.5">
+                <div class="h-full bg-cyan-500 rounded-full transition-all duration-500" :style="{ width: resources.innovation + '%' }"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Reputation -->
+          <div class="metric-card bg-slate-900/80 p-3 rounded-2xl border border-slate-800 flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[11px] font-bold text-slate-400 uppercase">ชื่อเสียง</span>
+              <i class="fa-solid fa-shield-heart text-amber-400 text-sm"></i>
+            </div>
+            <div>
+              <span class="text-sm md:text-base font-black text-amber-400">{{ resources.reputation }}%</span>
+              <div class="h-1.5 bg-slate-950 rounded-full overflow-hidden mt-1.5">
+                <div class="h-full bg-amber-500 rounded-full transition-all duration-500" :style="{ width: resources.reputation + '%' }"></div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- กล่องคำถามหลัก (Question Card) -->
-        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800">
-          <h2 class="text-lg md:text-xl font-bold leading-relaxed text-slate-100">
-            {{ questions[currentIdx].q }}
+        <!-- การ์ดจำลองวิกฤตการณ์ไตรมาส (Quarterly Scenario Card) -->
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4">
+          <div class="flex items-center space-x-2 text-xs font-bold text-indigo-400 uppercase tracking-widest">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>วิกฤต/โอกาส เชิงกลยุทธ์</span>
+          </div>
+          <h2 class="text-sm md:text-base font-bold leading-relaxed text-slate-100">
+            {{ scenarios[currentIdx].event }}
           </h2>
         </div>
 
-        <!-- รายการปุ่มช้อยส์คำตอบ 4 ตัวเลือก (Answer Options) -->
-        <div class="grid gap-3">
-          <button v-for="(opt, idx) in questions[currentIdx].opts" :key="idx"
-                  @click="answerQuestion(idx)"
-                  class="w-full text-left p-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 active:scale-[0.99] transition-all flex justify-between items-center group">
-            <span class="text-slate-300 font-medium group-hover:text-white">{{ opt }}</span>
+        <!-- ตัวเลือกตัดสินใจ (Decision Options) -->
+        <div class="space-y-2.5">
+          <button v-for="(opt, idx) in scenarios[currentIdx].opts" :key="idx"
+                  @click="makeDecision(opt)"
+                  class="w-full text-left p-4 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-700/60 active:scale-[0.99] transition-all flex justify-between items-center group">
+            <div class="flex-1 pr-2">
+              <p class="text-xs font-semibold text-slate-400 group-hover:text-brand-accent transition-colors mb-0.5">แผนกลยุทธ์ที่ {{ idx + 1 }}</p>
+              <p class="text-xs md:text-sm text-slate-200 font-medium group-hover:text-white">{{ opt.text }}</p>
+            </div>
             <i class="fa-solid fa-chevron-right text-slate-600 group-hover:text-brand-accent transition-colors"></i>
           </button>
         </div>
       </div>
 
-      <!-- 4. หน้าจอวิเคราะห์ผลสรุปและแสดงทำเนียบเกียรติยศ (Result & Real-time Leaderboard) -->
+      <!-- 4. หน้าจอวิเคราะห์ผลสรุปแพ้/ชนะ และส่งคะแนน (Game Over & Victory Screen) -->
       <div v-if="view === 'result'" class="space-y-6 text-center py-4">
-        <div class="space-y-2">
+        
+        <!-- กรณีชนะหรือจบเกมสำเร็จ -->
+        <div v-if="gameResult === 'victory'" class="space-y-3">
           <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-400 border border-emerald-500/20">
-            <i class="fa-solid fa-medal text-3xl"></i>
+            <i class="fa-solid fa-circle-check text-4xl"></i>
           </div>
-          <h2 class="text-2xl font-black text-emerald-400">จบการทดสอบสำเร็จ!</h2>
-          <p class="text-sm text-slate-400">ระบบได้วิเคราะห์ขีดระดับทักษะความรู้ของคุณแล้ว</p>
+          <h2 class="text-2xl font-black text-emerald-400">การบริหารสำเร็จลุล่วง!</h2>
+          <p class="text-xs text-slate-400">คุณสามารถรักษาสมดุลและผลักดันธุรกิจรอดพ้นความเสี่ยงได้สำเร็จ</p>
         </div>
 
-        <!-- แผงแสดงคะแนนรวมและยศเกียรติยศ -->
+        <!-- กรณีแพ้ (ล้มละลาย) -->
+        <div v-if="gameResult === 'bankrupt'" class="space-y-3">
+          <div class="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto text-rose-400 border border-rose-500/20">
+            <i class="fa-solid fa-building-circle-exclamation text-4xl"></i>
+          </div>
+          <h2 class="text-2xl font-black text-rose-400">วิกฤตล้มละลาย!</h2>
+          <p class="text-xs text-slate-400">ทรัพยากรหลักลดลงถึงเกณฑ์อันตรายจนไม่สามารถพยุงกิจการได้</p>
+        </div>
+
+        <!-- แผงแสดงมูลค่าประเมินบริษัท (Company Valuation) -->
         <div class="bg-slate-900/60 py-6 px-4 rounded-2xl border border-slate-800">
-          <span class="text-xs text-slate-500 uppercase tracking-widest font-black block">TOTAL SCORE</span>
-          <span class="text-5xl font-black text-amber-400 my-1 block neon-glow">{{ score }}</span>
-          <span class="text-xs px-3 py-1 bg-slate-850 text-slate-300 rounded-full border border-slate-700 inline-block mt-2">
-            เกียรติประวัติ: {{ getBadge() }}
+          <span class="text-[10px] text-slate-500 uppercase tracking-widest font-black block">มูลค่าประเมินบริษัทสูงสุด</span>
+          <span class="text-4xl md:text-5xl font-black text-amber-400 my-1.5 block neon-glow">฿{{ formatValuation(score) }}</span>
+          <span class="text-xs px-3 py-1 bg-slate-850 text-slate-300 rounded-full border border-slate-800 inline-block">
+            เกียรติยศ CEO: {{ getBadge() }}
           </span>
         </div>
 
-        <!-- เมนูส่งข้อมูลคะแนนเข้าระบบฐานข้อมูลหลัก -->
+        <!-- ปุ่มส่งข้อมูลเข้าระบบจัดลำดับคะแนนบริษัท -->
         <div v-if="!scoreSubmitted" class="space-y-3">
           <button @click="submitScoreToFirebase" :disabled="submitting"
                   class="w-full bg-brand-accent hover:bg-brand-accentHover text-white py-4 rounded-2xl font-bold transition shadow-lg active:scale-[0.98] disabled:bg-slate-700 flex items-center justify-center space-x-2">
             <i v-if="submitting" class="fa-solid fa-circle-notch animate-spin"></i>
             <i v-else class="fa-solid fa-cloud-arrow-up"></i>
-            <span>{{ submitting ? 'กำลังบันทึกคะแนน...' : 'บันทึกคะแนนเข้าทำเนียบรวม' }}</span>
+            <span>{{ submitting ? 'กำลังประเมินและอัปโหลดไฟล์...' : 'บันทึกประวัติการบริหารเข้า Leaderboard' }}</span>
           </button>
           <button @click="resetGame" class="text-sm text-slate-400 hover:text-slate-300 transition block mx-auto">
-            <i class="fa-solid fa-arrow-rotate-left mr-1"></i> ทำคะแนนใหม่อีกครั้ง
+            <i class="fa-solid fa-arrow-rotate-left mr-1"></i> เริ่มต้นบริหารใหม่อีกครั้ง
           </button>
         </div>
 
-        <!-- ระบบบอร์ดเกียรติยศแบบเรียลไทม์ (Live Real-time Leaderboard) -->
+        <!-- ทำเนียบผู้บริหารระดับสูง (Live Real-time Leaderboard) -->
         <div v-if="scoreSubmitted" class="space-y-4 pt-4 border-t border-slate-800 text-left">
           <div class="flex justify-between items-center">
             <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center">
-              <i class="fa-solid fa-trophy mr-2 text-amber-400"></i> TOP 10 LEADERBOARD
+              <i class="fa-solid fa-trophy mr-2 text-amber-400"></i> ทำเนียบบอร์ดผู้บริหารระดับองค์กร
             </h3>
             <span class="flex h-2 w-2 relative">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -255,17 +338,17 @@
                 </span>
                 <span class="font-bold text-slate-200">{{ row.user }}</span>
               </div>
-              <span class="font-bold text-amber-400">{{ row.score }} Pt</span>
+              <span class="font-bold text-amber-400">฿{{ formatValuation(row.score) }}</span>
             </div>
             
             <div v-if="leaderboard.length === 0" class="text-center py-4 text-slate-500 text-xs">
-              ระบบกำลังเชื่อมโยงข้อมูลเกียรติยศ...
+              กำลังรวบรวมทำเนียบบอร์ดผู้บริหาร...
             </div>
           </div>
 
           <button @click="resetGame" 
                   class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-3.5 rounded-2xl font-bold text-sm transition-all border border-slate-700">
-            <i class="fa-solid fa-gamepad mr-2"></i> เล่นอีกรอบ
+            <i class="fa-solid fa-rotate-left mr-2"></i> กลับไปรับตำแหน่งอีกรอบ
           </button>
         </div>
 
@@ -274,14 +357,14 @@
     </div>
   </div>
 
-  <!-- Firebase Scripts Modules (การดึงคลังแสงเครื่องมือมาตรฐานสากล) -->
+  <!-- Firebase Scripts Modules (การนำเข้าคลังระบบระดับ Enterprise) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, query, addDoc, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // ────────────────────────────────────────────────────────────────────────
-    // ⚙️ CONFIGURATION: ค่าเชื่อมต่อระบบจริงของคุณที่พึ่งสร้างไว้
+    // ⚙️ CONFIGURATION: ค่าเชื่อมต่อระบบจริงที่สอดรับกับ Firebase คอนซอลของคุณ
     // ────────────────────────────────────────────────────────────────────────
     const companyFirebaseConfig = {
       apiKey: "AIzaSyD1TMotoE7PZyVZ8MyNlbvUPtzS2gOGWFg",
@@ -293,13 +376,12 @@
       measurementId: "G-K9FZ560287"
     };
 
-    // ตรวจสอบแอปและพิกัดรันเพื่อความสมดุล (Fallback to Default if local platform triggers)
     const isLocalEnv = typeof __firebase_config !== 'undefined';
     const firebaseConfig = isLocalEnv ? JSON.parse(__firebase_config) : companyFirebaseConfig;
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'corporate-trivia-game-production';
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'corporate-ceo-simulator-production';
 
     // ────────────────────────────────────────────────────────────────────────
-    // INITIALIZATION (เริ่มต้นใช้บริการระบบ Firebase หลังบ้าน)
+    // INITIALIZATION
     // ────────────────────────────────────────────────────────────────────────
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -309,28 +391,78 @@
 
     createApp({
       setup() {
-        const view = ref('login'); // คุมหน้าเพจ: login, intro, play, result
+        const view = ref('login'); // login, intro, play, result
         const user = ref(null);
         const userDisplayName = ref('');
         const userEmail = ref('');
         const score = ref(0);
         const currentIdx = ref(0);
-        const timer = ref(15);
-        const timerInterval = ref(null);
         const submitting = ref(false);
         const scoreSubmitted = ref(false);
         const leaderboard = ref([]);
         const authLoading = ref(false);
+        const gameResult = ref('victory'); // victory, bankrupt
 
         const toast = ref({ show: false, message: '', type: 'success' });
 
-        // 📝 ชุดคำถามประจำองค์กร (สามารถสลับหรือเพิ่มประเด็นได้ตามหัวข้อพรีเซนต์)
-        const questions = ref([
-          { q: "1. ค่านิยมของบริษัทเราที่มีชื่อว่า 'Integrity' เน้นคุณสมบัติด้านใดที่สุด?", opts: ["ความทะเยอทะยานเชิงธุรกิจ", "ความตรงไปตรงมาและการรักษาคำมั่นสัญญา", "การประดิษฐ์ผลิตภัณฑ์ใหม่", "ความฉับไวในการเข้ายึดครองส่วนแบ่งตลาด"], a: 1 },
-          { q: "2. กรณีเกิดเหตุฉุกเฉินทางไซเบอร์ เช่น ได้รับอีเมลหลอกลวง (Phishing) ควรแจ้งแผนกใด?", opts: ["HR (ฝ่ายบุคคล)", "IT Support หรือ Security Operation Center (SOC)", "ฝ่ายขายและการตลาด", "แจ้งเพื่อนร่วมงานในกลุ่มไลน์ก็พอ"], a: 1 },
-          { q: "3. มาตรฐานความปลอดภัยข้อมูลข่าวสารที่องค์กรสากลมุ่งเน้นการปฏิบัติตามคือข้อใด?", opts: ["ISO 27001", "ISO 9001", "ISO 14001", "ISO 45001"], a: 0 },
-          { q: "4. กฎหมายการปกป้องคุ้มครองข้อมูลส่วนบุคคลของลูกค้าและพนักงานมีชื่อย่อว่าอะไร?", opts: ["GDPR & PDPA", "พ.ร.บ. คุ้มครองแรงงาน", "พ.ร.บ. คอมพิวเตอร์การบัญชี", "พ.ร.บ. รักษาความสะอาด"], a: 0 },
-          { q: "5. หากพนักงานพบเห็นช่องว่างความเสี่ยงหรือแนวทางการพัฒนานวัตกรรมองค์กร ควรทำอย่างไร?", opts: ["เก็บข้อเสนอไว้ในใจเงียบ ๆ", "เสนอเรื่องผ่านทางระบบ Innovation Portal ของบริษัท", "รอให้คนอื่นเจอแล้วค่อยทำตาม", "โพสต์ลงในโซเชียลมีเดียส่วนตัว"], a: 1 }
+        // ทรัพยากรเริ่มต้น
+        const resources = ref({
+          budget: 100000,
+          talent: 75,
+          innovation: 50,
+          reputation: 60
+        });
+
+        // 📝 รายการสถานการณ์การตัดสินใจ 6 ไตรมาส
+        const scenarios = ref([
+          {
+            event: "ไตรมาสที่ 1: การปฎิวัติอุตสาหกรรมด้วยปัญญาประดิษฐ์ (AI Transformation) - มีความเห็นเสนอให้ปรับมาใช้งานระบบ AI ในระบบหลังบ้านเพื่อลดขั้นตอน แต่ผู้ปฏิบัติงานบางส่วนยังกังวลเรื่องการตกงาน",
+            opts: [
+              { text: "ลงทุนนำเข้า AI เต็มรูปแบบ และจัดการฝึกอบรมอัปเกรดพนักงานทั้งหมด", budget: -30000, talent: 15, innovation: 30, reputation: 10 },
+              { text: "เลื่อนเวลาการอัปเกรดระบบไปก่อน เพื่อเน้นรักษาระดับความสามัคคีในทีมงานเดิม", budget: 0, talent: 10, innovation: -15, reputation: 5 },
+              { text: "เลย์เอาต์พนักงานส่วนที่ไม่จำเป็นออกทันทีเพื่อลดต้นทุน แล้วแทนที่ด้วยโปรแกรม AI สำเร็จรูป", budget: 40000, talent: -25, innovation: 20, reputation: -15 }
+            ]
+          },
+          {
+            event: "ไตรมาสที่ 2: วิกฤตการณ์สมองไหล (Talent Leakage) - บริษัทคู่แข่งยักษ์ใหญ่เสนอปรับฐานเงินเดือนขึ้น 30% เพื่อพยายามดึงตัวบุคลากรนักพัฒนานวัตกรรมคีย์แมนของเราไปร่วมทีม",
+            opts: [
+              { text: "จัดงบจัดซื้อ สวัสดิการกองทุนรวม และปรับฐานเงินเดือนขึ้นสู้เพื่อรักษาคนเก่งไว้", budget: -40000, talent: 25, innovation: 10, reputation: 5 },
+              { text: "ปล่อยให้พวกเขาย้ายไป แล้วหันไปจัดสรรจ้างฟรีแลนซ์/Outsource มาอุดรอยรั่วแทน", budget: -10000, talent: -15, innovation: -10, reputation: -10 },
+              { text: "จัดเสวนาสร้างสายสัมพันธ์ ความภูมิใจ และวิสัยทัศน์ในบริษัท (ไม่ได้ขึ้นฐานเงินเดือน)", budget: -5000, talent: 5, innovation: -5, reputation: 10 }
+            ]
+          },
+          {
+            event: "ไตรมาสที่ 3: ระบบรักษาความปลอดภัยทางเทคโนโลยีรั่วไหล (Security Leak) - มีผู้ไม่ประสงค์ดีโจมตีทางไซเบอร์ ส่งผลให้ข้อมูลบางส่วนของระบบบริการลูกค้าของบริษัทรั่วไหลออกสู่สาธารณะ",
+            opts: [
+              { text: "ออกแถลงการณ์ยอมรับผิดชอบ จ่ายเงินชดเชยลูกค้า และจ้างทีมงานตรวจสอบระบบระดับสากล", budget: -35000, talent: 0, innovation: 15, reputation: 35 },
+              { text: "พยายามปิดข่าวเงียบภายใน และแก้ไขระบบแบบออฟไลน์เงียบๆ โดยไม่ประกาศชี้แจง", budget: -5000, talent: -5, innovation: 5, reputation: -35 },
+              { text: "โยนข้อผิดพลาดให้เป็นประเด็นความประมาทเลินเล่อของคู่ค้าระบบคลาวด์ภายนอก", budget: 0, talent: 0, innovation: -5, reputation: -15 }
+            ]
+          },
+          {
+            event: "ไตรมาสที่ 4: สงครามราคาและการตลาด (Price War Disruption) - คู่แข่งรายใหม่เปิดตัวบริการตัดราคาถูกกว่าเรา 40% แย่งลูกค้าส่วนใหญ่ไปอย่างรวดเร็ว",
+            opts: [
+              { text: "สู้ด้วยกลยุทธ์สงครามราคา ยอมหั่นราคาลดกำไรบริษัทลงเพื่อรักษาฐานลูกค้าหลัก", budget: -30000, talent: -5, innovation: 0, reputation: 15 },
+              { text: "เน้นวิจัย ยกระดับนวัตกรรมความสามารถของผลิตภัณฑ์ เพื่อเสนอความพรีเมียมในราคาเดิม", budget: -20000, talent: 10, innovation: 35, reputation: 5 },
+              { text: "สร้างสรรค์แคมเปญการกุศลเพื่อสิ่งแวดล้อม ดึงดูดความรักองค์กรแทนการหั่นราคาคู่แข่ง", budget: -15000, talent: 0, innovation: -5, reputation: 25 }
+            ]
+          },
+          {
+            event: "ไตรมาสที่ 5: ประเด็นการจัดการสิ่งแวดล้อมและสังคม (ESG & Green Business) - ลูกค้ากลุ่มคนรุ่นใหม่พยายามเรียกร้องให้องค์กรของเราเลิกใช้วัสดุที่ไม่เป็นมิตรต่อสิ่งแวดล้อมทั้งหมด",
+            opts: [
+              { text: "ปรับกระบวนการผลิตและใช้ระบบวัตถุดิบรักษ์โลก 100% ทันที แม้ต้นทุนต่อหน่วยเพิ่มสูง", budget: -25000, talent: 5, innovation: 15, reputation: 30 },
+              { text: "ไม่ปรับปรุงสินค้าหลัก แต่ตั้งงบไปจ้างทำโฆษณารักษ์โลกเชิงประชาสัมพันธ์แทน (Greenwashing)", budget: -10000, talent: 0, innovation: -10, reputation: -5 },
+              { text: "ปฏิเสธเพราะมองว่ายังไม่คุ้มค่าทางเศรษฐกิจในเชิงพาณิชย์ขณะนี้", budget: 15000, talent: -5, innovation: -5, reputation: -20 }
+            ]
+          },
+          {
+            event: "ไตรมาสที่ 6: ข้อเสนอควบรวมกิจการเชิงยุทธศาสตร์ (Strategic Merger Option) - มีวิสาหกิจเริ่มต้นด้านซอฟต์แวร์อัจฉริยะติดต่อขอเสนอให้เราเข้าควบรวมเพื่อรวมศักยภาพการแข่งขัน",
+            opts: [
+              { text: "ใช้เงินสำรองจัดซื้อธุรกิจเข้ามาบูรณาการความรู้ความสามารถแบบเต็มตัว", budget: -50000, talent: 20, innovation: 45, reputation: 15 },
+              { text: "ร่วมเป็นพันธมิตรจัดทำโครงการสัญญาระยะสั้น โดยไม่ต้องลงทุนซื้อกิจการ", budget: -15000, talent: 10, innovation: 20, reputation: 5 },
+              { text: "ปฏิเสธ และรักษาพอร์ตความปลอดภัยเงินสดคงเหลือเพื่อหลีกเลี่ยงความเสี่ยงหนี้สิน", budget: 20000, talent: -10, innovation: -15, reputation: -5 }
+            ]
+          }
         ]);
 
         const showToast = (message, type = 'success') => {
@@ -338,8 +470,25 @@
           setTimeout(() => { toast.value.show = false; }, 3000);
         };
 
+        const formatValuation = (val) => {
+          return Number(val).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        };
+
+        const getPercentage = (value, max) => {
+          return Math.min(Math.max((value / max) * 100, 0), 100);
+        };
+
+        // คำนวณมูลค่าบริษัทตามทรัพยากรที่มี (Company Valuation Engine)
+        const calculateValuation = () => {
+          const val = (resources.value.budget * 0.7) + 
+                      (resources.value.talent * 500) + 
+                      (resources.value.innovation * 800) + 
+                      (resources.value.reputation * 600);
+          return Math.max(Math.round(val), 0);
+        };
+
         // ────────────────────────────────────────────────────────────────────────
-        // AUTHENTICATION FLOW (คุมความปลอดภัยและการระบุอีเมล)
+        // AUTHENTICATION FLOW
         // ────────────────────────────────────────────────────────────────────────
         onMounted(async () => {
           authLoading.value = true;
@@ -352,16 +501,15 @@
               }
             }
           } catch (e) {
-            console.error("Auth initialization error:", e);
+            console.error("Auth initialization failed:", e);
           } finally {
             authLoading.value = false;
           }
 
-          // คอยดักจับสถานะล็อกอินเข้าสู่ระบบ
           onAuthStateChanged(auth, (usr) => {
             if (usr) {
               user.value = usr;
-              userDisplayName.value = usr.displayName || usr.email?.split('@')[0] || 'Employee-User';
+              userDisplayName.value = usr.displayName || usr.email?.split('@')[0] || 'Executive-CEO';
               userEmail.value = usr.email || 'guest@company.com';
               view.value = 'intro';
             } else {
@@ -371,29 +519,27 @@
           });
         });
 
-        // ล็อกอินทางการด้วยระบบสแกน Google Account
         const loginWithGoogle = async () => {
           authLoading.value = true;
           const provider = new GoogleAuthProvider();
           try {
             await signInWithPopup(auth, provider);
-            showToast("ยินดีต้อนรับ เข้าสู่ระบบสากลสำเร็จ!");
+            showToast("เข้าบริหารและยืนยันตัวตนสำเร็จ!");
           } catch (error) {
-            console.error("Google authentication failed:", error);
-            showToast("การตรวจสอบสิทธิ์ล้มเหลว กรุณาลองใหม่อีกครั้ง", "error");
+            console.error("Authentication failed:", error);
+            showToast("สิทธิ์การเข้าถึงขัดข้อง กรุณาลองใหม่อีกครั้ง", "error");
           } finally {
             authLoading.value = false;
           }
         };
 
-        // ทางเลือกล็อกอินจำลองด่วน (สำหรับใช้พรีเซนต์กรณีบัญชีนอกระบบองค์กร)
         const loginAnonymously = async () => {
           authLoading.value = true;
           try {
             await signInAnonymously(auth);
-            showToast("เข้าระบบในนามผู้ใช้ชั่วคราว");
+            showToast("เข้าเล่นในโหมดผู้ร่วมสังเกตการณ์");
           } catch (e) {
-            showToast("ไม่สามารถสร้างบัญชีด่วนได้: " + e.message, "error");
+            showToast("ระบบชั่วคราวติดขัด: " + e.message, "error");
           } finally {
             authLoading.value = false;
           }
@@ -401,62 +547,68 @@
 
         const logout = () => {
           signOut(auth);
-          showToast("ลงชื่อออกจากระบบเรียบร้อยแล้ว");
+          showToast("ลงชื่อออกจากตำแหน่งเรียบร้อยแล้ว");
         };
 
         // ────────────────────────────────────────────────────────────────────────
-        // GAMEPLAY ENGINE (ประมวลระบบเล่นเกมเชิงกลยุทธ์ความไว)
+        // STRATEGY CORE GAMEPLAY
         // ────────────────────────────────────────────────────────────────────────
         const startGame = () => {
-          score.value = 0;
+          resources.value = {
+            budget: 120000,
+            talent: 80,
+            innovation: 50,
+            reputation: 60
+          };
           currentIdx.value = 0;
+          scoreSubmitted.value = false;
           view.value = 'play';
-          startTimer();
         };
 
-        const startTimer = () => {
-          timer.value = 15;
-          clearInterval(timerInterval.value);
-          timerInterval.value = setInterval(() => {
-            if (timer.value > 0) {
-              timer.value--;
+        const makeDecision = (opt) => {
+          // คำนวณความเปลี่ยนแปลงของทรัพยากร
+          resources.value.budget += opt.budget;
+          resources.value.talent = Math.min(Math.max(resources.value.talent + opt.talent, 0), 100);
+          resources.value.innovation = Math.min(Math.max(resources.value.innovation + opt.innovation, 0), 100);
+          resources.value.reputation = Math.min(Math.max(resources.value.reputation + opt.reputation, 0), 100);
+
+          // รายงานผลการตัดสินใจสั้นๆ ผ่าน Toast
+          let changeMsg = `ไตรมาสสำเร็จ: เงินทุน ${opt.budget >= 0 ? '+' : ''}${formatValuation(opt.budget)}, ` +
+                          `พลังงานทีม ${opt.talent >= 0 ? '+' : ''}${opt.talent}%, ` +
+                          `นวัตกรรม ${opt.innovation >= 0 ? '+' : ''}${opt.innovation}%, ` +
+                          `ชื่อเสียง ${opt.reputation >= 0 ? '+' : ''}${opt.reputation}%`;
+          
+          showToast(changeMsg, "success");
+
+          // ตรวจสอบเงื่อนไขการล้มละลาย (Bankrupt check)
+          if (resources.value.budget <= 0 || resources.value.talent <= 0 || resources.value.innovation <= 0 || resources.value.reputation <= 0) {
+            setTimeout(() => {
+              score.value = calculateValuation();
+              gameResult.value = 'bankrupt';
+              view.value = 'result';
+            }, 1000);
+            return;
+          }
+
+          // ตรวจสอบไตรมาสถัดไป
+          setTimeout(() => {
+            if (currentIdx.value < scenarios.value.length - 1) {
+              currentIdx.value++;
             } else {
-              answerQuestion(-1); // ถือว่าตอบช้าเกินเวลาและข้ามไปข้อถัดไป
+              // จบเกมแบบประสบความสำเร็จ (Victory)
+              score.value = calculateValuation();
+              gameResult.value = 'victory';
+              view.value = 'result';
+              confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
             }
           }, 1000);
         };
 
-        const answerQuestion = (selectedIdx) => {
-          clearInterval(timerInterval.value);
-          const currentQuestion = questions.value[currentIdx.value];
-
-          if (selectedIdx === currentQuestion.a) {
-            // ระบบสะสมแต้ม: คะแนนข้อ 1000 + (วินาทีความเร็วที่เหลือคูณ 50)
-            const speedBonus = timer.value * 50;
-            score.value += (1000 + speedBonus);
-            showToast("ตอบถูก! ได้รับแต้มบวก " + (1000 + speedBonus) + " คะแนน", "success");
-          } else {
-            showToast("คำตอบยังไม่ถูกต้องสำหรับข้อนี้!", "error");
-          }
-
-          // สไลด์เปลี่ยนข้อถัดไป
-          setTimeout(() => {
-            if (currentIdx.value < questions.value.length - 1) {
-              currentIdx.value++;
-              startTimer();
-            } else {
-              view.value = 'result';
-              // เอฟเฟกต์พลุดิจิทัลแสดงความยินดีหลังเล่นจบ
-              confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-            }
-          }, 800);
-        };
-
         const getBadge = () => {
-          const maxPossible = questions.value.length * 1750;
-          if (score.value >= maxPossible * 0.8) return 'Platinum Specialist 🏆';
-          if (score.value >= maxPossible * 0.55) return 'Gold Professional 🥇';
-          return 'Silver Contributor 🥈';
+          if (gameResult.value === 'bankrupt') return 'CEO กิจการล้มละลาย 📉';
+          if (score.value >= 180000) return 'Unicorn Builder CEO 🦄';
+          if (score.value >= 130000) return 'High Strategic Manager 👔';
+          return 'Startup Explorer CEO 🚀';
         };
 
         const isCurrentUser = (name) => {
@@ -464,27 +616,24 @@
         };
 
         const resetGame = () => {
-          score.value = 0;
-          currentIdx.value = 0;
           scoreSubmitted.value = false;
           view.value = 'intro';
         };
 
         // ────────────────────────────────────────────────────────────────────────
-        // FIRESTORE INTERACTIVE DATABASE (เขียน/ดึงข้อมูลแบบเสถียรที่สุด)
+        // FIRESTORE INTERACTIVE DATABASE
         // ────────────────────────────────────────────────────────────────────────
         const submitScoreToFirebase = async () => {
           if (!user.value) {
-            showToast("กรุณายืนยันตัวตนก่อนส่งคะแนน", "error");
+            showToast("กรุณายืนยันสิทธิ์ก่อนอัปโหลดข้อมูล", "error");
             return;
           }
           submitting.value = true;
 
           try {
-            // ปฏิบัติตามกฎเหล็ก: strict path เพื่อให้สิทธิ์ Firebase Security Rules ผ่านฉลุย
-            const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'scores');
+            // ปฏิบัติตามกฎเหล็ก strict path เพื่อป้องกันข้อผิดพลาดด้านระบบสิทธิ์
+            const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'scores_strategy');
             
-            // บันทึกประวัติข้อมูลคะแนนและความรวดเร็วลง Firebase
             await addDoc(collectionPath, {
               uid: user.value.uid,
               user: userDisplayName.value,
@@ -495,43 +644,43 @@
             });
 
             scoreSubmitted.value = true;
-            showToast("คะแนนของคุณเข้าทำเนียบเกียรติยศแล้ว!");
+            showToast("บันทึกเกียรติยศเข้าทำเนียบบอร์ดบริษัทแล้ว!");
             
-            // เชื่อมโยงและเปิดสัญญาณ Real-time Leaderboard สดทันที
+            // เปิดสัญญาณรับรู้ผลคะแนนแบบ Real-time ทันที
             startRealtimeLeaderboard();
           } catch (e) {
-            console.error("Submit score error:", e);
-            showToast("ระบบขัดข้องเครือข่าย: " + e.message, "error");
+            console.error("Firebase submit error:", e);
+            showToast("ระบบฐานข้อมูลติดขัด: " + e.message, "error");
           } finally {
             submitting.value = false;
           }
         };
 
         const startRealtimeLeaderboard = () => {
-          const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'scores');
+          const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'scores_strategy');
           
-          // ดึงข้อมูลและสร้าง Listener รับรู้ความเปลี่ยนแปลง (Real-time update)
+          // เชื่อมสัญญาณ Snapshot
           onSnapshot(collectionPath, (snapshot) => {
             const rawScores = [];
             snapshot.forEach((doc) => {
               rawScores.push(doc.data());
             });
 
-            // เรียงลำดับจากมากไปน้อยภายในหน่วยความจำ RAM เพื่อป้องกันปัญหา Index พังใน Firebase
+            // เรียงลำดับจากมากไปน้อยในหน่วยความจำ (RAM) เพื่อขจัดข้อผิดพลาดการคอมไพล์ Composite Indexes
             rawScores.sort((a, b) => b.score - a.score);
 
-            // เก็บเฉพาะ Top 10 สูงสุดขององค์กรเพื่อแสดงบน Leaderboard
             leaderboard.value = rawScores.slice(0, 10);
           }, (err) => {
-            console.error("Live Leaderboard subscription failed:", err);
+            console.error("Leaderboard subscription error:", err);
           });
         };
 
         return {
-          view, user, userDisplayName, score, currentIdx, timer, questions, toast,
-          startGame, answerQuestion, getBadge, isCurrentUser, resetGame,
+          view, user, userDisplayName, score, currentIdx, scenarios, toast, resources,
+          startGame, makeDecision, getBadge, isCurrentUser, resetGame,
           submitScoreToFirebase, scoreSubmitted, submitting, leaderboard,
-          loginWithGoogle, loginAnonymously, logout, authLoading
+          loginWithGoogle, loginAnonymously, logout, authLoading, formatValuation,
+          getPercentage, calculateValuation, gameResult
         };
       }
     }).mount('#app');
