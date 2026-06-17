@@ -1,11 +1,20 @@
+<!--
+Chosen Palette: Vibrant Cyberpunk (Deep Slate #05070f, Emerald #10b981, Violet #8b5cf6, Pink #ec4899, Amber #f59e0b)
+Narrative Plan:
+1. หน้าล็อกอินและยืนยันตัวตน: พนักงานล็อกอินผ่านระบบสากลของบริษัท
+2. หน้ายินดีต้อนรับและการกำหนดโครงสร้าง: ผู้เล่นทำการเลือกฝ่ายงาน (Department) และระดับความยาก (Difficulty)
+3. หน้าจอการตัดสินใจบริหารงาน (Gameplay Dashboard): เปลี่ยนเป็นมุมมอง RPG 2D Top-down บังคับตัวละครเดินไปเก็บไอเท็มพยุงชีพ และคุยกับ NPC ประจำแผนกเพื่อตอบคำถามวิกฤตการณ์
+4. หน้าวิเคราะห์ประเมินผลลัพธ์และจัดลำดับคะแนน: แสดงผลระดับเกรด บริหารกราฟเส้นประวัติมูลค่า และประมวลตารางผู้นำแยกแผนกเรียลไทม์
+Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
+-->
 <!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CEO Simulator: Hardcore Corporate Strategy Dashboard</title>
+  <title>CEO Simulator: Departmental Competency RPG Edition</title>
   
-  <!-- External Frameworks & Libraries -->
+  <!-- CSS Frameworks & Dynamic JS Tools -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -44,12 +53,6 @@
     .neon-glow {
       text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
     }
-    .metric-card {
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    }
-    .metric-card:hover {
-      transform: translateY(-2px);
-    }
     ::-webkit-scrollbar {
       width: 5px;
     }
@@ -62,11 +65,11 @@
     }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen flex items-center justify-center p-2 md:p-4">
+<body class="text-slate-100 min-h-screen flex items-center justify-center p-1 md:p-4">
 
   <div id="app" v-cloak class="w-full max-w-2xl">
     
-    <!-- ระบบแจ้งเตือนแผนงาน (Toast Notification) -->
+    <!-- ระบบสตรีมแจ้งเตือนความปลอดภัย (Toast Interface) -->
     <transition name="fade">
       <div v-if="toast.show" 
            :class="['fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm font-semibold border transition-all max-w-md w-11/12', 
@@ -76,18 +79,18 @@
       </div>
     </transition>
 
-    <!-- หน้าต่างควบคุมหลัก (Main Game Card) -->
-    <div class="bg-brand-card rounded-3xl p-5 md:p-8 shadow-2xl border border-slate-800/80 relative overflow-hidden neon-border">
+    <!-- หน้าต่างควบคุมการประเมินคะแนนหลัก (Main Board Shell) -->
+    <div class="bg-brand-card rounded-3xl p-4 md:p-6 shadow-2xl border border-slate-800/80 relative overflow-hidden neon-border">
       
-      <!-- เอฟเฟกต์บรรยากาศล้ำสมัย (Ambient Lights) -->
+      <!-- บรรยากาศไฟนีออนสว่างไสวด้านหลังเพจ (Ambient Lights) -->
       <div class="absolute -top-32 -right-32 w-64 h-64 bg-brand-accent/20 blur-[120px] rounded-full pointer-events-none"></div>
       <div class="absolute -bottom-32 -left-32 w-64 h-64 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none"></div>
 
-      <!-- 1. หน้าล็อกอิน (Login Screen) -->
+      <!-- 1. หน้าล็อกอินยืนยันตัวตน (Login Screen) -->
       <div v-if="view === 'login'" class="text-center space-y-8 py-6">
         <div class="relative inline-block">
           <div class="w-24 h-24 bg-brand-accent/20 rounded-3xl flex items-center justify-center mx-auto border border-brand-accent/30 shadow-inner">
-            <i class="fa-solid fa-crown text-5xl text-brand-accent neon-glow animate-pulse"></i>
+            <i class="fa-solid fa-graduation-cap text-5xl text-brand-accent neon-glow animate-pulse"></i>
           </div>
           <span class="absolute -bottom-1 -right-1 flex h-4 w-4">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -99,37 +102,47 @@
           <h1 class="text-3xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             CEO SIMULATOR
           </h1>
-          <p class="text-sm text-slate-400">Hardcore Strategy Dashboard v2.0</p>
+          <p class="text-xs md:text-sm text-slate-400">ระบบทดสอบวิเคราะห์ความเชี่ยวชาญเฉพาะทางพนักงาน [RPG EDITION] v3.0</p>
         </div>
 
         <div class="space-y-4 pt-4">
-          <!-- ปุ่มล็อกอินจริงผ่าน Google Workspace -->
+          <!-- ปุ่มล็อกอินด้วย Google Workspace -->
           <button @click="loginWithGoogle" :disabled="authLoading"
                   class="w-full bg-brand-accent hover:bg-brand-accentHover active:scale-[0.98] py-4 rounded-2xl font-bold transition-all flex items-center justify-center space-x-3 shadow-lg shadow-brand-accent/35 text-sm md:text-base">
             <i class="fa-brands fa-google text-lg"></i>
-            <span>{{ authLoading ? 'กำลังตรวจสอบระบบ...' : 'ล็อกอินพนักงานเพื่อเริ่มท้าทาย' }}</span>
+            <span>{{ authLoading ? 'กำลังตรวจสอบสิทธิ์...' : 'ล็อกอินด้วยบัญชี Google บริษัท' }}</span>
           </button>
 
-          <!-- ปุ่มเล่นด่วนกรณีทดสอบระบบ -->
-          <button @click="loginAnonymously" :disabled="authLoading"
-                  class="w-full bg-slate-850 hover:bg-slate-800 active:scale-[0.98] py-4 rounded-2xl font-bold transition-all flex items-center justify-center space-x-3 border border-slate-700/70 text-slate-300 text-sm md:text-base">
-            <i class="fa-solid fa-user-tie"></i>
-            <span>โหมดผู้สังเกตการณ์ (Guest Mode)</span>
-          </button>
+          <!-- 👤 ฟอร์มเข้าสู่ระบบด่วนด้วยชื่อเล่น (Guest Mode with Custom Name) -->
+          <div class="border-t border-slate-800/80 pt-6 mt-6 space-y-3">
+            <div class="text-left">
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                <i class="fa-solid fa-user-ninja text-brand-accent mr-1"></i> เข้าเล่นทันทีด้วยชื่อของคุณ (ไม่ต้องผ่านบัญชี Google)
+              </label>
+              <div class="flex space-x-2">
+                <input type="text" v-model="guestNameInput" placeholder="ระบุชื่อเล่นหรือนามสมมติ..." 
+                       class="flex-1 bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-accent transition-all">
+                <button @click="loginAnonymously" :disabled="authLoading"
+                        class="bg-slate-800 hover:bg-slate-750 active:scale-[0.98] px-5 rounded-xl font-bold transition-all text-xs border border-slate-700/70 text-slate-200">
+                  เข้าสู่ระบบ <i class="fa-solid fa-circle-play text-brand-accent ml-1.5"></i>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <p class="text-xs text-slate-500">จำกัดสิทธิ์การประเมินคะแนนเฉพาะบุคลากรภายในเครือข่ายบริษัทเท่านั้น</p>
+        <p class="text-xs text-slate-500">จำกัดสิทธิ์การเก็บประเมินประวัติเฉพาะบุคลากรของบริษัทเท่านั้น</p>
       </div>
 
-      <!-- 2. หน้าลอบบี้และเลือกความยาก (Lobby & Difficulty Settings) -->
+      <!-- 2. หน้ายินดีต้อนรับและการสับคัดกรองแผนก (Lobby & Profile Setting) -->
       <div v-if="view === 'intro'" class="space-y-6 py-2">
         <div class="flex items-center justify-between border-b border-slate-800 pb-4">
           <div class="flex items-center space-x-3">
             <div class="w-10 h-10 rounded-full bg-slate-850 border border-slate-800 flex items-center justify-center text-brand-accent">
-              <i class="fa-solid fa-user-shield text-lg"></i>
+              <i class="fa-solid fa-user-gear text-lg"></i>
             </div>
             <div>
-              <p class="text-xs text-slate-500">บัญชีผู้บริหารสูงสุด</p>
+              <p class="text-xs text-slate-500">บัญชีผู้ประเมิน</p>
               <p class="text-sm font-bold text-slate-200 truncate max-w-[200px]">{{ userDisplayName }}</p>
             </div>
           </div>
@@ -139,242 +152,275 @@
           </button>
         </div>
 
-        <!-- ตัวเลือกด่านความยาก (Difficulty Selector) -->
+        <!-- แท็บเลือกแผนกงานจริง (Department Selector) -->
         <div class="space-y-3">
-          <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">เลือกระดับความท้าทายเชิงโครงสร้าง:</h3>
-          <div class="grid grid-cols-3 gap-3">
-            <!-- Normal -->
-            <button @click="setDifficulty('normal')" 
-                    :class="['p-3 rounded-xl border text-xs font-bold transition-all', 
-                             difficulty === 'normal' ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
-              <i class="fa-solid fa-seedling block text-lg mb-1"></i> Normal
+          <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center">
+            <i class="fa-solid fa-building-user mr-2 text-brand-accent"></i> 1. ระบุฝ่ายงานสังกัดของคุณเพื่อรับพลังพิเศษ (Passive Buff):
+          </h3>
+          <div class="grid grid-cols-2 gap-3">
+            <button @click="setDepartment('it')" 
+                    :class="['p-3 rounded-xl border text-xs font-bold transition-all text-left flex items-center space-x-3', 
+                             selectedDept === 'it' ? 'bg-indigo-500/10 border-indigo-500 text-indigo-300' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
+              <i class="fa-solid fa-laptop-code text-lg"></i>
+              <div>
+                <span class="block">ฝ่ายเทคโนโลยี/IT</span>
+                <span class="block text-[9px] text-slate-500">แต้มตัวคูณนวัตกรรม x3</span>
+              </div>
             </button>
-            <!-- Hard -->
-            <button @click="setDifficulty('hard')" 
-                    :class="['p-3 rounded-xl border text-xs font-bold transition-all', 
-                             difficulty === 'hard' ? 'bg-amber-500/10 border-amber-500 text-amber-400' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
-              <i class="fa-solid fa-fire block text-lg mb-1"></i> Hard
+            <button @click="setDepartment('hr')" 
+                    :class="['p-3 rounded-xl border text-xs font-bold transition-all text-left flex items-center space-x-3', 
+                             selectedDept === 'hr' ? 'bg-indigo-500/10 border-indigo-500 text-indigo-300' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
+              <i class="fa-solid fa-people-group text-lg"></i>
+              <div>
+                <span class="block">ฝ่ายทรัพยากรบุคคล/HR</span>
+                <span class="block text-[9px] text-slate-500">แต้มตัวคูณพลังคน x3</span>
+              </div>
             </button>
-            <!-- Expert -->
-            <button @click="setDifficulty('expert')" 
-                    :class="['p-3 rounded-xl border text-xs font-bold transition-all', 
-                             difficulty === 'expert' ? 'bg-rose-500/10 border-rose-500 text-rose-400' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
-              <i class="fa-solid fa-skull block text-lg mb-1"></i> Expert
+            <button @click="setDepartment('finance')" 
+                    :class="['p-3 rounded-xl border text-xs font-bold transition-all text-left flex items-center space-x-3', 
+                             selectedDept === 'finance' ? 'bg-indigo-500/10 border-indigo-500 text-indigo-300' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
+              <i class="fa-solid fa-hand-holding-dollar text-lg"></i>
+              <div>
+                <span class="block">ฝ่ายการเงิน/Finance</span>
+                <span class="block text-[9px] text-slate-500">แต้มตัวคูณเงินทุน x3</span>
+              </div>
+            </button>
+            <button @click="setDepartment('marketing')" 
+                    :class="['p-3 rounded-xl border text-xs font-bold transition-all text-left flex items-center space-x-3', 
+                             selectedDept === 'marketing' ? 'bg-indigo-500/10 border-indigo-500 text-indigo-300' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
+              <i class="fa-solid fa-bullhorn text-lg"></i>
+              <div>
+                <span class="block">ฝ่ายการตลาด/PR</span>
+                <span class="block text-[9px] text-slate-500">แต้มตัวคูณชื่อเสียง x3</span>
+              </div>
             </button>
           </div>
         </div>
 
-        <!-- รายละเอียดความท้าทายระดับยากพิเศษ -->
-        <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800 space-y-2 text-xs text-slate-400">
-          <p class="font-bold text-slate-200 flex items-center">
-            <i class="fa-solid fa-triangle-exclamation text-amber-400 mr-2"></i> สภาวะข้อกำหนดด่าน {{ difficulty.toUpperCase() }}
-          </p>
-          <ul class="list-disc pl-4 space-y-1">
-            <li v-if="difficulty === 'normal'">งบประมาณเริ่มต้น ฿120,000, ทรัพยากรลดลงระดับปกติ</li>
-            <li v-if="difficulty === 'hard'">งบประมาณเริ่มต้นลดเหลือ ฿80,000, อัตราหนี้กู้ยืมพ่วงดอกเบี้ยจ่ายสูงขึ้น 15%</li>
-            <li v-if="difficulty === 'expert'">งบเริ่มต้นเหลือ ฿50,000, อัตราค่าทรัพยากรลดเร็วขึ้น 20% และมีวิกฤตสุ่มแทรกแซงทุกไตรมาส!</li>
-            <li>มีแต้ม Action Points (AP) จำกัดในแต่ละไตรมาสเพื่อตัดสินใจเสริมกำลังธุรกิจอย่างอิสระ</li>
-          </ul>
+        <!-- แท็บเลือกระดับด่าน (Difficulty Setting) -->
+        <div class="space-y-3">
+          <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center">
+            <i class="fa-solid fa-gauge-high mr-2 text-brand-accent"></i> 2. ระดับความยากการเผชิญวิกฤต:
+          </h3>
+          <div class="grid grid-cols-3 gap-3">
+            <button @click="setDifficulty('normal')" 
+                    :class="['p-3 rounded-xl border text-xs font-bold transition-all', 
+                             difficulty === 'normal' ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
+              Normal
+            </button>
+            <button @click="setDifficulty('hard')" 
+                    :class="['p-3 rounded-xl border text-xs font-bold transition-all', 
+                             difficulty === 'hard' ? 'bg-amber-500/10 border-amber-500 text-amber-400' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
+              Hard
+            </button>
+            <button @click="setDifficulty('expert')" 
+                    :class="['p-3 rounded-xl border text-xs font-bold transition-all', 
+                             difficulty === 'expert' ? 'bg-rose-500/10 border-rose-500 text-rose-400' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
+              Expert
+            </button>
+          </div>
         </div>
 
         <button @click="startGame" 
                 class="w-full bg-brand-accent hover:bg-brand-accentHover text-white py-4 rounded-2xl font-bold text-lg transition-all shadow-lg active:scale-[0.98]">
-          รับตำแหน่ง CEO และเริ่มเกม <i class="fa-solid fa-arrow-right ml-2"></i>
+          เข้าสู่บริษัทและสวมบทบาท CEO <i class="fa-solid fa-circle-play ml-2"></i>
         </button>
       </div>
 
-      <!-- 3. หน้ากระดานบอร์ดผู้บริหาร (Gameplay Dashboard) -->
-      <div v-if="view === 'play'" class="space-y-6">
-        <!-- แผงแสดงสถานะระดับสูงด้านบน -->
-        <div class="flex justify-between items-center">
+      <!-- 3. หน้ากระดานแสดงผลแบบ RPG 2D (RPG Gameplay Dashboard) -->
+      <div v-if="view === 'play'" class="space-y-4">
+        <!-- แถบดัชนีภาพรวมองค์กรระดับทักษะ -->
+        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
           <div class="space-y-1">
-            <div class="px-3 py-1 bg-slate-850 rounded-full text-[10px] font-bold text-slate-300 border border-slate-800 inline-block">
-              ไตรมาสที่ {{ currentIdx + 1 }} / 6
-            </div>
-            <span class="text-xs text-slate-500 block uppercase font-bold tracking-wider">โหมดความยาก: {{ difficulty.toUpperCase() }}</span>
+            <span class="text-xs text-slate-400 block font-bold">
+              ภารกิจ: เดินคุยกับ <b class="text-amber-400">{{ getRemainingTasksCount() }}</b> แผนกเพื่อแก้ไขสถานการณ์
+            </span>
           </div>
           <div class="text-right">
-            <span class="text-[10px] text-slate-500 block uppercase font-bold tracking-wider">มูลค่าบริษัทปัจจุบัน</span>
-            <span class="text-xl md:text-2xl font-black text-amber-400 neon-glow">฿{{ formatValuation(calculateValuation()) }}</span>
+            <span class="text-[10px] text-slate-500 block uppercase font-bold tracking-wider">มูลค่าประเมินบริษัท</span>
+            <span class="text-lg md:text-xl font-black text-amber-400 neon-glow">฿{{ formatValuation(calculateValuation()) }}</span>
           </div>
         </div>
 
-        <!-- แผงตัวชี้วัดทรัพยากร 4 ด้าน + หนี้สินสะสม (Interactive Metrics Layout) -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <!-- แผงประเมินทรัพยากรหลักทั้ง 4 ด้าน (Resources Grid) -->
+        <div class="grid grid-cols-4 gap-2">
           <!-- Budget -->
-          <div class="bg-slate-900/85 p-3 rounded-xl border border-slate-800/80 flex flex-col justify-between">
-            <span class="text-[10px] font-bold text-slate-400 uppercase">งบประมาณ</span>
-            <span :class="['text-xs md:text-sm font-black', resources.budget <= 25000 ? 'text-rose-400 animate-pulse' : 'text-emerald-400']">
+          <div class="bg-slate-900/85 p-2 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+            <span class="text-[9px] font-bold text-slate-400 uppercase">งบประมาณ</span>
+            <span :class="['text-[11px] md:text-xs font-black', resources.budget <= 25000 ? 'text-rose-400 animate-pulse' : 'text-emerald-400']">
               ฿{{ formatValuation(resources.budget) }}
             </span>
-            <div class="h-1 bg-slate-950 rounded-full overflow-hidden mt-2">
+            <div class="h-1 bg-slate-950 rounded-full overflow-hidden mt-1">
               <div class="h-full bg-emerald-500" :style="{ width: getPercentage(resources.budget, 200000) + '%' }"></div>
             </div>
           </div>
 
           <!-- Talent -->
-          <div class="bg-slate-900/85 p-3 rounded-xl border border-slate-800/80 flex flex-col justify-between">
-            <span class="text-[10px] font-bold text-slate-400 uppercase">พลังทีมงาน</span>
-            <span :class="['text-xs md:text-sm font-black', resources.talent <= 25 ? 'text-rose-400 animate-pulse' : 'text-violet-400']">
+          <div class="bg-slate-900/85 p-2 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+            <span class="text-[9px] font-bold text-slate-400 uppercase">พลังทีมงาน</span>
+            <span :class="['text-[11px] md:text-xs font-black', resources.talent <= 25 ? 'text-rose-400 animate-pulse' : 'text-violet-400']">
               {{ resources.talent }}%
             </span>
-            <div class="h-1 bg-slate-950 rounded-full overflow-hidden mt-2">
+            <div class="h-1 bg-slate-950 rounded-full overflow-hidden mt-1">
               <div class="h-full bg-violet-500" :style="{ width: resources.talent + '%' }"></div>
             </div>
           </div>
 
           <!-- Innovation -->
-          <div class="bg-slate-900/85 p-3 rounded-xl border border-slate-800/80 flex flex-col justify-between">
-            <span class="text-[10px] font-bold text-slate-400 uppercase">นวัตกรรม</span>
-            <span :class="['text-xs md:text-sm font-black', resources.innovation <= 25 ? 'text-rose-400 animate-pulse' : 'text-cyan-400']">
+          <div class="bg-slate-900/85 p-2 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+            <span class="text-[9px] font-bold text-slate-400 uppercase">นวัตกรรม</span>
+            <span :class="['text-[11px] md:text-xs font-black', resources.innovation <= 25 ? 'text-rose-400 animate-pulse' : 'text-cyan-400']">
               {{ resources.innovation }}%
             </span>
-            <div class="h-1 bg-slate-950 rounded-full overflow-hidden mt-2">
+            <div class="h-1 bg-slate-950 rounded-full overflow-hidden mt-1">
               <div class="h-full bg-cyan-500" :style="{ width: resources.innovation + '%' }"></div>
             </div>
           </div>
 
           <!-- Reputation -->
-          <div class="bg-slate-900/85 p-3 rounded-xl border border-slate-800/80 flex flex-col justify-between">
-            <span class="text-[10px] font-bold text-slate-400 uppercase">ชื่อเสียง</span>
-            <span :class="['text-xs md:text-sm font-black', resources.reputation <= 25 ? 'text-rose-400 animate-pulse' : 'text-amber-400']">
+          <div class="bg-slate-900/85 p-2 rounded-xl border border-slate-800/80 flex flex-col justify-between">
+            <span class="text-[9px] font-bold text-slate-400 uppercase">ชื่อเสียง</span>
+            <span :class="['text-[11px] md:text-xs font-black', resources.reputation <= 25 ? 'text-rose-400 animate-pulse' : 'text-amber-400']">
               {{ resources.reputation }}%
             </span>
-            <div class="h-1 bg-slate-950 rounded-full overflow-hidden mt-2">
+            <div class="h-1 bg-slate-950 rounded-full overflow-hidden mt-1">
               <div class="h-full bg-amber-500" :style="{ width: resources.reputation + '%' }"></div>
             </div>
           </div>
         </div>
 
-        <!-- แสดงสถานะหนี้สินและดอกเบี้ยจ่ายหากมีการกู้เงินเกิดขึ้น -->
-        <div v-if="resources.debt > 0" class="bg-rose-950/20 border border-rose-500/20 rounded-xl p-3 flex justify-between items-center text-xs text-rose-300">
-          <span><i class="fa-solid fa-triangle-exclamation mr-1.5 animate-pulse"></i> ภาระหนี้กู้ยืมสะสม: <b>฿{{ formatValuation(resources.debt) }}</b></span>
-          <span>หักดอกเบี้ยอัตโนมัติ: <b>฿{{ formatValuation(resources.debt * 0.15) }} / สิ้นไตรมาส</b></span>
+        <!-- 🕹️ จอแสดงผล RPG Canvas 2D Top-down Engine -->
+        <div class="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden flex items-center justify-center flex-col p-1">
+          <div class="absolute top-2 left-2 z-10 bg-slate-900/90 border border-slate-700/50 rounded-lg px-2 py-1 text-[9px] text-indigo-300">
+            <i class="fa-solid fa-arrows-to-eye"></i> บังคับ: ลูกศร / WASD | <i class="fa-solid fa-mobile-screen-button"></i> ปุ่มกดบนจอ
+          </div>
+
+          <div class="absolute top-2 right-2 z-10 bg-emerald-950/90 border border-emerald-500/50 rounded-lg px-2 py-1 text-[9px] text-emerald-300 animate-pulse">
+            <i class="fa-solid fa-coins"></i> คืนแต้ม AP: {{ actionPoints }} AP
+          </div>
+
+          <!-- ตัวคัดเกรดขนาดแคนวาสสำหรับการวาดจริง -->
+          <canvas id="rpgCanvas" width="480" height="320" class="w-full h-[280px] md:h-[320px] bg-slate-950 rounded-xl"></canvas>
         </div>
 
-        <!-- ⚡️ แผงแต้มบริหารและการตัดสินใจเชิงรุก (Action Points System) -->
-        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center">
-              <i class="fa-solid fa-bolt mr-2"></i> แต้มพลังการบริหารของ CEO: 
-              <span class="ml-1 text-slate-100 font-black">{{ actionPoints }} AP</span>
-            </span>
-            <span class="text-[10px] text-slate-500">*AP รีเซ็ตเป็น 3 แต้มในไตรมาสใหม่</span>
-          </div>
-
-          <!-- รายการโครงการริเริ่มเชิงกลยุทธ์ (Strategic Initiatives) -->
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-2 text-center">
-            <!-- 1. R&D -->
-            <button @click="executeProject('rnd')" :disabled="actionPoints < 1 || resources.budget < 25000"
-                    class="p-2 bg-slate-900 hover:bg-slate-850 rounded-xl border border-slate-800 disabled:opacity-30 text-xs transition-all">
-              <span class="block font-bold text-cyan-400">R&D / พัฒนา AI</span>
-              <span class="block text-[10px] text-slate-500 mt-1">-฿25k | +20% Innov | -1 AP</span>
+        <!-- 📱 ระบบควบคุมแบบ D-pad จำลองสำหรับการพกพาทัชสกรีนมือถือ (Virtual Controller) -->
+        <div class="flex flex-col items-center justify-center space-y-1 py-1">
+          <button @mousedown="movePlayer('up')" @touchstart.prevent="movePlayer('up')" class="w-12 h-10 bg-slate-800/90 hover:bg-slate-700 rounded-xl border border-slate-700 active:scale-90 transition-all flex items-center justify-center">
+            <i class="fa-solid fa-chevron-up text-lg text-indigo-400"></i>
+          </button>
+          <div class="flex space-x-6">
+            <button @mousedown="movePlayer('left')" @touchstart.prevent="movePlayer('left')" class="w-12 h-10 bg-slate-800/90 hover:bg-slate-700 rounded-xl border border-slate-700 active:scale-90 transition-all flex items-center justify-center">
+              <i class="fa-solid fa-chevron-left text-lg text-indigo-400"></i>
             </button>
-            
-            <!-- 2. HR Upskill -->
-            <button @click="executeProject('hr')" :disabled="actionPoints < 1 || resources.budget < 15000"
-                    class="p-2 bg-slate-900 hover:bg-slate-850 rounded-xl border border-slate-800 disabled:opacity-30 text-xs transition-all">
-              <span class="block font-bold text-violet-400">อบรมพัฒนาทักษะ</span>
-              <span class="block text-[10px] text-slate-500 mt-1">-฿15k | +20% Talent | -1 AP</span>
-            </button>
-
-            <!-- 3. ESG Marketing -->
-            <button @click="executeProject('esg')" :disabled="actionPoints < 1 || resources.budget < 15000"
-                    class="p-2 bg-slate-900 hover:bg-slate-850 rounded-xl border border-slate-800 disabled:opacity-30 text-xs transition-all">
-              <span class="block font-bold text-amber-400">แคมเปญตลาด ESG</span>
-              <span class="block text-[10px] text-slate-500 mt-1">-฿15k | +20% Reputation | -1 AP</span>
-            </button>
-
-            <!-- 4. Emergency Loan -->
-            <button @click="executeProject('loan')" :disabled="resources.budget > 40000"
-                    class="p-2 bg-rose-950/20 hover:bg-rose-900/30 rounded-xl border border-rose-500/30 disabled:opacity-30 text-xs transition-all">
-              <span class="block font-bold text-rose-400">กู้เงินช่วยเหลือด่วน</span>
-              <span class="block text-[10px] text-slate-500 mt-1">+฿50k | +฿50k หนี้สะสม | -0 AP</span>
+            <div class="w-12 h-10 bg-indigo-950/30 rounded-xl flex items-center justify-center text-[10px] font-bold text-indigo-400">D-PAD</div>
+            <button @mousedown="movePlayer('right')" @touchstart.prevent="movePlayer('right')" class="w-12 h-10 bg-slate-800/90 hover:bg-slate-700 rounded-xl border border-slate-700 active:scale-90 transition-all flex items-center justify-center">
+              <i class="fa-solid fa-chevron-right text-lg text-indigo-400"></i>
             </button>
           </div>
+          <button @mousedown="movePlayer('down')" @touchstart.prevent="movePlayer('down')" class="w-12 h-10 bg-slate-800/90 hover:bg-slate-700 rounded-xl border border-slate-700 active:scale-90 transition-all flex items-center justify-center">
+            <i class="fa-solid fa-chevron-down text-lg text-indigo-400"></i>
+          </button>
         </div>
 
-        <!-- การ์ดวิกฤตหลักประจำไตรมาส -->
-        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4">
-          <div class="flex items-center space-x-2 text-xs font-bold text-rose-400 uppercase tracking-widest animate-pulse">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <span>วิกฤต/โอกาส หลักประจำไตรมาส</span>
-          </div>
+        <!-- ดอกเบี้ยหนี้สะสมแจ้งเตือน -->
+        <div v-if="resources.debt > 0" class="bg-rose-950/20 border border-rose-500/20 rounded-xl p-2.5 flex justify-between items-center text-[10px] text-rose-300">
+          <span><i class="fa-solid fa-triangle-exclamation mr-1 animate-pulse"></i> หนี้สะสมพยุงกิจการ: <b>฿{{ formatValuation(resources.debt) }}</b></span>
+          <span>ดอกเบี้ยจ่ายตอบคำถาม: <b>฿{{ formatValuation(resources.debt * 0.15) }} / โจทย์</b></span>
+        </div>
+      </div>
+
+      <!-- 🎮 กล่องสถานการณ์วิกฤตที่ทริกเกอร์ขึ้นมาเมื่อตัวละครชน NPC หัวหน้าแผนก (Crisis Encounter Modal) -->
+      <div v-if="view === 'encounter'" class="space-y-4">
+        <div class="flex items-center space-x-2 text-xs font-bold text-rose-400 uppercase tracking-widest animate-pulse border-b border-slate-800 pb-2">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>วิกฤตแผนก {{ getDeptName(activeEncounterDept) }}</span>
+        </div>
+
+        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
           <h2 class="text-sm md:text-base font-bold leading-relaxed text-slate-100">
-            {{ scenarios[currentIdx].event }}
+            {{ activeCrisis.event }}
           </h2>
         </div>
 
-        <!-- ตัวเลือกตัดสินใจเพื่อแก้ปัญหาไตรมาส (ขยับเปลี่ยนไตรมาสใหม่) -->
-        <div class="space-y-2.5">
-          <button v-for="(opt, idx) in scenarios[currentIdx].opts" :key="idx"
-                  @click="makeDecision(opt)"
-                  class="w-full text-left p-4 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-700/60 active:scale-[0.99] transition-all flex justify-between items-center group">
+        <!-- แผนทางเลือกเชิงกลยุทธ์ -->
+        <div class="space-y-2">
+          <button v-for="(opt, idx) in activeCrisis.opts" :key="idx"
+                  @click="makeDecisionInEncounter(opt)"
+                  class="w-full text-left p-3.5 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-700/60 active:scale-[0.99] transition-all flex justify-between items-center group">
             <div class="flex-1 pr-2">
-              <p class="text-xs font-semibold text-indigo-400 group-hover:text-brand-accent transition-colors mb-0.5">แผนกลยุทธ์ที่ {{ idx + 1 }}</p>
+              <p class="text-[10px] font-bold text-indigo-400 group-hover:text-brand-accent transition-colors mb-0.5">ทางเลือกที่ {{ idx + 1 }}</p>
               <p class="text-xs md:text-sm text-slate-200 font-medium group-hover:text-white">{{ opt.text }}</p>
             </div>
             <i class="fa-solid fa-chevron-right text-slate-600 group-hover:text-brand-accent transition-colors"></i>
           </button>
         </div>
+
+        <!-- ทางเลือกรองรับใช้แต้ม AP ในกรณีฉุกเฉินเพื่อข้ามปัญหา -->
+        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+          <span class="text-slate-400">ใช้ 1 AP เพื่อทำการฝึกอบรมพยุงสถานการณ์ไม่ให้แย่ลง?</span>
+          <button @click="skipCrisisWithAP" :disabled="actionPoints < 1"
+                  class="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-35 text-white px-3 py-1.5 rounded-lg font-bold text-xs transition">
+            ใช้ 1 AP จัดการ
+          </button>
+        </div>
       </div>
 
-      <!-- 4. หน้าจอวิเคราะห์ผลลัพธ์และแสดงกราฟวิเคราะห์ (Valuation Chart Analytics) -->
-      <div v-if="view === 'result'" class="space-y-6 text-center py-4">
+      <!-- 4. หน้าจอวิเคราะห์เกรดผู้นำและบอร์ดคะแนนแยกแผนก (Score & Realtime Leaderboard) -->
+      <div v-if="view === 'result'" class="space-y-5 text-center py-4">
         
-        <div v-if="gameResult === 'victory'" class="space-y-3">
-          <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-400 border border-emerald-500/20 animate-bounce">
-            <i class="fa-solid fa-trophy text-4xl"></i>
+        <div v-if="gameResult === 'victory'" class="space-y-2">
+          <div class="w-14 h-14 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-400 border border-emerald-500/20 animate-bounce">
+            <i class="fa-solid fa-award text-3xl"></i>
           </div>
-          <h2 class="text-2xl font-black text-emerald-400">บริหารสำเร็จลุล่วง!</h2>
-          <p class="text-xs text-slate-400">ด่าน {{ difficulty.toUpperCase() }} : รักษาสมดุลและผลักดันธุรกิจรอดพ้นวิกฤตสำเร็จ</p>
+          <h2 class="text-xl font-black text-emerald-400">บริหารเสร็จสิ้นลุล่วง!</h2>
+          <p class="text-xs text-slate-400">ฝ่ายงานสังกัด: {{ getDeptName(selectedDept) }} | ด่าน: {{ difficulty.toUpperCase() }}</p>
         </div>
 
-        <div v-if="gameResult === 'bankrupt'" class="space-y-3">
-          <div class="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto text-rose-400 border border-rose-500/20">
-            <i class="fa-solid fa-skull-crossbones text-4xl"></i>
+        <div v-if="gameResult === 'bankrupt'" class="space-y-2">
+          <div class="w-14 h-14 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto text-rose-400 border border-rose-500/20">
+            <i class="fa-solid fa-skull-crossbones text-3xl"></i>
           </div>
-          <h2 class="text-2xl font-black text-rose-400">วิกฤตล้มละลาย!</h2>
-          <p class="text-xs text-slate-400">ด่าน {{ difficulty.toUpperCase() }} : ทรัพยากรหมดตัวจนไม่สามารถประคองพอร์ตงานได้</p>
+          <h2 class="text-xl font-black text-rose-400">ล้มละลาย / องค์กรไม่ผ่านประเมิน!</h2>
+          <p class="text-xs text-slate-400">ค่าสถานะใดสถานะหนึ่งตกลงต่ำแตะ 0 ก่อนเคลียร์งานเสร็จสิ้นครบถ้วน</p>
         </div>
 
-        <!-- สรุปคะแนนมูลค่าประเมินสุดท้าย -->
-        <div class="bg-slate-900/60 py-6 px-4 rounded-2xl border border-slate-800">
-          <span class="text-[10px] text-slate-500 uppercase tracking-widest font-black block">มูลค่าประเมินแบรนด์สูงสุด</span>
-          <span class="text-4xl md:text-5xl font-black text-amber-400 my-1.5 block neon-glow">฿{{ formatValuation(score) }}</span>
-          <span class="text-xs px-3 py-1 bg-slate-850 text-slate-300 rounded-full border border-slate-800 inline-block">
-            เกียรติยศ CEO: {{ getBadge() }}
+        <!-- แผงแสดงคะแนนประเมิน -->
+        <div class="bg-slate-900/60 py-4 px-3 rounded-2xl border border-slate-800">
+          <span class="text-[9px] text-slate-500 uppercase tracking-widest font-black block">มูลค่าประเมินบริษัทสะสม</span>
+          <span class="text-3xl md:text-4xl font-black text-amber-400 my-1 block neon-glow">฿{{ formatValuation(score) }}</span>
+          <span class="text-xs px-3 py-1 bg-slate-850 text-slate-300 rounded-full border border-slate-800 inline-block mt-1">
+            ทักษะผู้นำ: {{ getBadge() }}
           </span>
         </div>
 
-        <!-- 📈 กราฟแสดงแนวโน้มมูลค่าบริษัทรายไตรมาส (Live Trend Chart.js) -->
-        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
-          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center justify-center">
-            <i class="fa-solid fa-chart-line text-indigo-400 mr-2"></i> แผนภูมิแสดงแนวโน้มมูลค่าสะสม (Valuation Trend)
+        <!-- 📈 กราฟเส้นสรุปประวัติประเมินคะแนนรายไตรมาส (Live Valuation History Line Chart) -->
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-850">
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-center">
+            <i class="fa-solid fa-chart-line text-indigo-400 mr-2"></i> กราฟประวัติการเติบโตมูลค่าแบรนด์ (Valuation History)
           </h3>
-          <div class="relative w-full h-[200px]">
+          <div class="relative w-full h-[160px]">
             <canvas id="valuationTrendChart"></canvas>
           </div>
         </div>
 
-        <!-- ปุ่มส่งข้อมูลเข้าระบบจัดลำดับคะแนนระดับชาติ -->
+        <!-- การส่งบันทึกผลงาน -->
         <div v-if="!scoreSubmitted" class="space-y-3">
           <button @click="submitScoreToFirebase" :disabled="submitting"
                   class="w-full bg-brand-accent hover:bg-brand-accentHover text-white py-4 rounded-2xl font-bold transition shadow-lg active:scale-[0.98] disabled:bg-slate-700 flex items-center justify-center space-x-2">
             <i v-if="submitting" class="fa-solid fa-circle-notch animate-spin"></i>
             <i v-else class="fa-solid fa-cloud-arrow-up"></i>
-            <span>{{ submitting ? 'กำลังบันทึกคะแนน...' : 'ส่งคะแนนความท้าทายเข้า Leaderboard' }}</span>
+            <span>{{ submitting ? 'กำลังบันทึกคะแนน...' : 'ส่งผลงานขึ้นทำเนียบลีดเดอร์บอร์ดบริษัท' }}</span>
           </button>
           <button @click="resetGame" class="text-sm text-slate-400 hover:text-slate-300 transition block mx-auto">
-            <i class="fa-solid fa-arrow-rotate-left mr-1"></i> เริ่มต้นกู้ภัยอีกครั้ง
+            <i class="fa-solid fa-arrow-rotate-left mr-1"></i> เริ่มใหม่อีกครั้ง
           </button>
         </div>
 
-        <!-- ตารางบอร์ดเกียรติยศ -->
+        <!-- 🏆 บอร์ดจัดลำดับแบบฟิลเตอร์เลือกแผนกเรียลไทม์ (Live Departmental Leaderboard) -->
         <div v-if="scoreSubmitted" class="space-y-4 pt-4 border-t border-slate-800 text-left">
           <div class="flex justify-between items-center">
             <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center">
-              <i class="fa-solid fa-list-ol mr-2 text-amber-400"></i> ทำเนียบบอร์ดผู้บริหารระดับองค์กร v2 (ด่าน {{ difficulty.toUpperCase() }})
+              <i class="fa-solid fa-users mr-2 text-amber-400"></i> ทำเนียบยอดฝีมือแยกตามทักษะสังกัด
             </h3>
             <span class="flex h-2 w-2 relative">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -382,30 +428,43 @@
             </span>
           </div>
 
-          <div class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-            <div v-for="(row, idx) in leaderboard" :key="idx" 
-                 :class="['flex justify-between items-center p-3 rounded-xl border transition-all text-sm', 
+          <!-- แผงแท็บกดสับดูอันดับคะแนนเฉพาะแผนกเชิงเปรียบเทียบ -->
+          <div class="flex space-x-1.5 overflow-x-auto pb-2 border-b border-slate-900">
+            <button @click="boardTab = 'all'" :class="['px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap', boardTab === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400']">ทั้งหมด</button>
+            <button @click="boardTab = 'it'" :class="['px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap', boardTab === 'it' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400']">IT</button>
+            <button @click="boardTab = 'hr'" :class="['px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap', boardTab === 'hr' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400']">HR</button>
+            <button @click="boardTab = 'finance'" :class="['px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap', boardTab === 'finance' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400']">Finance</button>
+            <button @click="boardTab = 'marketing'" :class="['px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap', boardTab === 'marketing' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400']">PR / Marketing</button>
+          </div>
+
+          <div class="space-y-2 max-h-[180px] overflow-y-auto pr-1">
+            <div v-for="(row, idx) in getFilteredLeaderboard()" :key="idx" 
+                 :class="['flex justify-between items-center p-2.5 rounded-xl border transition-all text-xs md:text-sm', 
                           isCurrentUser(row.user) ? 'bg-brand-accent/15 border-brand-accent/60' : 'bg-slate-900/40 border-slate-800/80']">
               <div class="flex items-center space-x-3">
-                <span :class="['w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black shadow-inner',
+                <span :class="['w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shadow-inner',
                               idx === 0 ? 'bg-amber-400 text-slate-950' : 
                               idx === 1 ? 'bg-slate-300 text-slate-950' : 
                               idx === 2 ? 'bg-amber-700 text-white' : 'bg-slate-800 text-slate-400']">
                   {{ idx + 1 }}
                 </span>
-                <span class="font-bold text-slate-200">{{ row.user }} <span class="text-[9px] text-indigo-400 ml-1.5 bg-indigo-500/10 px-1.5 py-0.5 rounded">Lvl: {{ row.diff?.toUpperCase() || 'NORMAL' }}</span></span>
+                <span class="font-bold text-slate-200">
+                  {{ row.user }} 
+                  <span class="text-[8px] text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded ml-1.5">Lvl: {{ row.diff?.toUpperCase() || 'NORMAL' }}</span>
+                  <span class="text-[8px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded ml-1">{{ getDeptName(row.dept).split(' ')[0] }}</span>
+                </span>
               </div>
               <span class="font-bold text-amber-400">฿{{ formatValuation(row.score) }}</span>
             </div>
             
-            <div v-if="leaderboard.length === 0" class="text-center py-4 text-slate-500 text-xs">
-              ระบบกำลังเชื่อมสัญญาณบอร์ดคะแนน...
+            <div v-if="getFilteredLeaderboard().length === 0" class="text-center py-4 text-slate-500 text-xs">
+              ยังไม่พบข้อมูลผู้บริหารประวัติคะแนนของแผนกนี้
             </div>
           </div>
 
           <button @click="resetGame" 
-                  class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-3.5 rounded-2xl font-bold text-sm transition-all border border-slate-700">
-            <i class="fa-solid fa-rotate-left mr-2"></i> กลับไปรับตำแหน่งใหม่อีกรอบ
+                  class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-2xl font-bold text-sm transition-all border border-slate-700">
+            <i class="fa-solid fa-rotate-left mr-2"></i> กลับไปท้าทายใหม่อีกรอบ
           </button>
         </div>
 
@@ -414,14 +473,14 @@
     </div>
   </div>
 
-  <!-- Firebase Scripts Config (สตรีมและจัดเก็บเข้าฐานข้อมูลสากลจริง) -->
+  <!-- Firebase Live Database Bundles -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, query, addDoc, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // ────────────────────────────────────────────────────────────────────────
-    // ⚙️ CONFIGURATION: เชื่อมต่อฐานข้อมูลจริงพนักงานของบริษัทคุณ
+    // ⚙️ CONFIGURATION: ค่าเชื่อมต่อคลาวด์บริษัทจริงของคุณ
     // ────────────────────────────────────────────────────────────────────────
     const companyFirebaseConfig = {
       apiKey: "AIzaSyD1TMotoE7PZyVZ8MyNlbvUPtzS2gOGWFg",
@@ -435,7 +494,7 @@
 
     const isLocalEnv = typeof __firebase_config !== 'undefined';
     const firebaseConfig = isLocalEnv ? JSON.parse(__firebase_config) : companyFirebaseConfig;
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'corporate-ceo-simulator-v2-production';
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'corporate-ceo-simulator-dept-production';
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -445,7 +504,7 @@
 
     createApp({
       setup() {
-        const view = ref('login'); // login, intro, play, result
+        const view = ref('login'); // login, intro, play, encounter, result
         const user = ref(null);
         const userDisplayName = ref('');
         const userEmail = ref('');
@@ -457,11 +516,16 @@
         const authLoading = ref(false);
         const gameResult = ref('victory'); // victory, bankrupt
 
+        const selectedDept = ref('it'); // it, hr, finance, marketing
         const difficulty = ref('normal'); // normal, hard, expert
-        const actionPoints = ref(3); // CEO Action points per turn
+        const actionPoints = ref(3);
         const toast = ref({ show: false, message: '', type: 'success' });
+        const boardTab = ref('all'); // คุมฟิลเตอร์แท็บบอร์ดแสดงผล
 
-        // ประวัติตามเก็บประเมินผลคะแนนเพื่อวาดกราฟเส้นตอนจบ
+        // ช่องสำหรับผู้ใช้ทั่วไปกรอกชื่อเล่นเพื่อใช้เล่นและจัดอันดับ (Guest custom nickname)
+        const guestNameInput = ref('');
+
+        // ประวัติตามเก็บคะแนนวาดกราฟเส้นตอนจบ
         const valuationHistory = ref([]);
 
         // ตัวแปรทรัพยากรหลัก
@@ -470,66 +534,272 @@
           talent: 80,
           innovation: 50,
           reputation: 60,
-          debt: 0 // ระบบหนี้สินและดอกเบี้ยจ่าย
+          debt: 0
         });
 
-        // รายการปัญหาไตรมาสหลัก
-        const scenarios = ref([
+        // 📝 สถานการณ์วิกฤตแผนก (1 สำหรับแต่ละแผนก เพื่อใช้ในระบบเดินพูดคุยของ RPG)
+        const activeEncounterDept = ref('it');
+        const activeCrisis = ref({});
+        const completedQuests = ref({
+          it: false,
+          hr: false,
+          finance: false,
+          marketing: false
+        });
+
+        const scenariosIT = [
           {
-            event: "ไตรมาสที่ 1: การปฎิวัติอุตสาหกรรมด้วยปัญญาประดิษฐ์ (AI Transformation) - มีความเห็นเสนอให้ปรับมาใช้งานระบบ AI ในระบบหลังบ้านเพื่อลดขั้นตอน แต่ผู้ปฏิบัติงานบางส่วนยังกังวลเรื่องการตกงาน",
+            event: "วิกฤต IT: คลาวด์หลังบ้านล่มระหว่างช่วงมหกรรมจัดแคมเปญใหญ่ (Downtime Crisis) ดึงระบบประมวลผลล่มสลาย ลูกค้าโมโหในโซเชียล",
             opts: [
-              { text: "ลงทุนนำเข้า AI เต็มรูปแบบ และจัดการฝึกอบรมอัปเกรดพนักงานทั้งหมด", budget: -30000, talent: 15, innovation: 30, reputation: 10 },
-              { text: "เลื่อนเวลาการอัปเกรดระบบไปก่อน เพื่อเน้นรักษาระดับความสามัคคีในทีมงานเดิม", budget: 0, talent: 10, innovation: -15, reputation: 5 },
-              { text: "เลย์เอาต์พนักงานส่วนที่ไม่จำเป็นออกทันทีเพื่อลดต้นทุน แล้วแทนที่ด้วยโปรแกรม AI สำเร็จรูป", budget: 40000, talent: -25, innovation: 20, reputation: -15 }
-            ]
-          },
-          {
-            event: "ไตรมาสที่ 2: วิกฤตการณ์สมองไหล (Talent Leakage) - บริษัทคู่แข่งยักษ์ใหญ่เสนอปรับฐานเงินเดือนขึ้น 30% เพื่อพยายามดึงตัวบุคลากรนักพัฒนานวัตกรรมคีย์แมนของเราไปร่วมทีม",
-            opts: [
-              { text: "จัดงบจัดซื้อ สวัสดิการกองทุนรวม และปรับฐานเงินเดือนขึ้นสู้เพื่อรักษาคนเก่งไว้", budget: -40000, talent: 25, innovation: 10, reputation: 5 },
-              { text: "ปล่อยให้พวกเขาย้ายไป แล้วหันไปจัดสรรจ้างฟรีแลนซ์/Outsource มาอุดรอยรั่วแทน", budget: -10000, talent: -15, innovation: -10, reputation: -10 },
-              { text: "จัดเสวนาสร้างสายสัมพันธ์ ความภูมิใจ และวิสัยทัศน์ในบริษัท (ไม่ได้ขึ้นฐานเงินเดือน)", budget: -5000, talent: 5, innovation: -5, reputation: 10 }
-            ]
-          },
-          {
-            event: "ไตรมาสที่ 3: ระบบรักษาความปลอดภัยทางเทคโนโลยีรั่วไหล (Security Leak) - มีผู้ไม่ประสงค์ดีโจมตีทางไซเบอร์ ส่งผลให้ข้อมูลบางส่วนของระบบบริการลูกค้าของบริษัทรั่วไหลออกสู่สาธารณะ",
-            opts: [
-              { text: "ออกแถลงการณ์ยอมรับผิดชอบ จ่ายเงินชดเชยลูกค้า และจ้างทีมงานตรวจสอบระบบระดับสากล", budget: -35000, talent: 0, innovation: 15, reputation: 35 },
-              { text: "พยายามปิดข่าวเงียบภายใน และแก้ไขระบบแบบออฟไลน์เงียบๆ โดยไม่ประกาศชี้แจง", budget: -5000, talent: -5, innovation: 5, reputation: -35 },
-              { text: "โยนข้อผิดพลาดให้เป็นประเด็นความประมาทเลินเล่อของคู่ค้าระบบคลาวด์ภายนอก", budget: 0, talent: 0, innovation: -5, reputation: -15 }
-            ]
-          },
-          {
-            event: "ไตรมาสที่ 4: สงครามราคาและการตลาด (Price War Disruption) - คู่แข่งรายใหม่เปิดตัวบริการตัดราคาถูกกว่าเรา 40% แย่งลูกค้าส่วนใหญ่ไปอย่างรวดเร็ว",
-            opts: [
-              { text: "สู้ด้วยกลยุทธ์สงครามราคา ยอมหั่นราคาลดกำไรบริษัทลงเพื่อรักษาฐานลูกค้าหลัก", budget: -30000, talent: -5, innovation: 0, reputation: 15 },
-              { text: "เน้นวิจัย ยกระดับนวัตกรรมความสามารถของผลิตภัณฑ์ เพื่อเสนอความพรีเมียมในราคาเดิม", budget: -20000, talent: 10, innovation: 35, reputation: 5 },
-              { text: "สร้างสรรค์แคมเปญการกุศลเพื่อสิ่งแวดล้อม ดึงดูดความรักองค์กรแทนการหั่นราคาคู่แข่ง", budget: -15000, talent: 0, innovation: -5, reputation: 25 }
-            ]
-          },
-          {
-            event: "ไตรมาสที่ 5: ประเด็นการจัดการสิ่งแวดล้อมและสังคม (ESG & Green Business) - ลูกค้ากลุ่มคนรุ่นใหม่พยายามเรียกร้องให้องค์กรของเราเลิกใช้วัสดุที่ไม่เป็นมิตรต่อสิ่งแวดล้อมทั้งหมด",
-            opts: [
-              { text: "ปรับกระบวนการผลิตและใช้ระบบวัตถุดิบรักษ์โลก 100% ทันที แม้ต้นทุนต่อหน่วยเพิ่มสูง", budget: -25000, talent: 5, innovation: 15, reputation: 30 },
-              { text: "ไม่ปรับปรุงสินค้าหลัก แต่ตั้งงบไปจ้างทำโฆษณารักษ์โลกเชิงประชาสัมพันธ์แทน (Greenwashing)", budget: -10000, talent: 0, innovation: -10, reputation: -5 },
-              { text: "ปฏิเสธเพราะมองว่ายังไม่คุ้มค่าทางเศรษฐกิจในเชิงพาณิชย์ขณะนี้", budget: 15000, talent: -5, innovation: -5, reputation: -20 }
-            ]
-          },
-          {
-            event: "ไตรมาสที่ 6: ข้อเสนอควบรวมกิจการเชิงยุทธศาสตร์ (Strategic Merger Option) - มีวิสาหกิจเริ่มต้นด้านซอฟต์แวร์อัจฉริยะติดต่อขอเสนอให้เราเข้าควบรวมเพื่อรวมศักยภาพการแข่งขัน",
-            opts: [
-              { text: "ใช้เงินสำรองจัดซื้อธุรกิจเข้ามาบูรณาการความรู้ความสามารถแบบเต็มตัว", budget: -50000, talent: 20, innovation: 45, reputation: 15 },
-              { text: "ร่วมเป็นพันธมิตรจัดทำโครงการสัญญาระยะสั้น โดยไม่ต้องลงทุนซื้อกิจการ", budget: -15000, talent: 10, innovation: 20, reputation: 5 },
-              { text: "ปฏิเสธ และรักษาพอร์ตความปลอดภัยเงินสดคงเหลือเพื่อหลีกเลี่ยงความเสี่ยงหนี้สิน", budget: 20000, talent: -10, innovation: -15, reputation: -5 }
+              { text: "ลงทุนเปลี่ยนไปใช้สถาปัตยกรรมแบบ Multi-Cloud ทันทีเพื่อให้ระบบแทนที่อัตโนมัติ", budget: -40000, talent: -5, innovation: 35, reputation: 10 },
+              { text: "ดึงกำลังพนักงานไอทีเก่ง ๆ สแตนบายแก้โค้ดเฉพาะหน้าแบบยาวนานตลอด 48 ชั่วโมง", budget: -10000, talent: -30, innovation: 10, reputation: 5 },
+              { text: "โพสต์แจงขออภัยในปัญหา พร้อมออกประกาศปิดบำรุงรักษาระบบชั่วคราวเพื่อลดโหลดข้อมูล", budget: 0, talent: 0, innovation: -10, reputation: -20 }
             ]
           }
+        ];
+
+        const scenariosHR = [
+          {
+            event: "วิกฤต HR: วิกฤตพนักงานหมดไฟและการลาออกแบบเงียบ ๆ (Quiet Quitting Crisis) อัตราความผูกพันลดต่ำสุด ดัชนีความเหนื่อยพุ่งสูง",
+            opts: [
+              { text: "ปรับเพิ่มมาตรการสวัสดิการสันทนาการ และปรับลดเวลาทำงานสัปดาห์ลง", budget: -25000, talent: 35, innovation: 5, reputation: 10 },
+              { text: "สั่งทีมหัวหน้างานเร่งกดดัน ตรวจจับความคืบหน้างานของพนักงานผ่านซอฟต์แวร์เช็คจอ", budget: -5000, talent: -30, innovation: 10, reputation: -15 },
+              { text: "จัดกิจกรรม Team Building กีฬาสีสังสรรค์ครั้งใหญ่ในวันหยุดเพื่อเรียกพลังกลับคืน", budget: -15500, talent: -5, innovation: -5, reputation: 15 }
+            ]
+          }
+        ];
+
+        const scenariosFinance = [
+          {
+            event: "วิกฤตการเงิน: สภาพคล่องกระแสเงินสดติดลบ (Cash Flow Deficit) ลูกค้าจ่ายล่าช้า ทำให้พอร์ตเงินสดสดประคองซัพพลายเออร์ลำบาก",
+            opts: [
+              { text: "ยอมรับเงื่อนไขการใช้ใบแจ้งหนี้กู้ยืมระยะสั้น (Factoring) ยอมเสียดอกเบี้ยเพื่อเงินด่วน", budget: -15000, talent: 0, innovation: 0, reputation: 25 },
+              { text: "ดึงยืดกำหนดเวลาชำระเงินกับซัพพลายเออร์ออกไปอีก 60 วัน เพื่อประคองพอร์ต", budget: 0, talent: 0, innovation: -10, reputation: -25 },
+              { text: "เลื่อนจ่ายโบนัสไตรมาสแรกของพนักงานออกไป เพื่อเก็บสภาพคล่องไว้จ่ายค่าสินค้า", budget: 10000, talent: -35, innovation: 0, reputation: -10 }
+            ]
+          }
+        ];
+
+        const scenariosMarketing = [
+          {
+            event: "วิกฤต PR: ดราม่าเชิงสังคมจากแคมเปญโฆษณาที่อ่อนไหว (Viral PR Disaster) สื่อประชาสัมพันธ์ตัวใหม่ทำพลาด ดึงชาวเน็ตแชร์ถล่ม",
+            opts: [
+              { text: "ถอดโฆษณาออกทันทีภายใน 1 ชั่วโมง ออกแถลงการณ์ขอโทษ และปลดพาร์ตเนอร์เอเจนซี่", budget: -25000, talent: -10, innovation: 0, reputation: 45 },
+              { text: "ปล่อยแคมเปญรันต่อ และจ้างทีมงานอินฟลูเอนเซอร์มาช่วยเขียนอธิบายเจตนาที่แท้จริง", budget: -15000, talent: 5, innovation: 10, reputation: -10 },
+              { text: "เพิกเฉย และจัดโปรโมชันลดราคาสินค้าเพื่อดึงดูดกระแสยอดขายกลับคืน", budget: -20000, talent: 0, innovation: -5, reputation: -25 }
+            ]
+          }
+        ];
+
+        // ────────────────────────────────────────────────────────────────────────
+        // 🕹️ RPG 2D ENGINE (Canvas Top-down Mechanics)
+        // ────────────────────────────────────────────────────────────────────────
+        let canvas, ctx, animationFrameId;
+        const tileSize = 32;
+        const mapRows = 10;
+        const mapCols = 15; // 480x320 แคนวาส
+
+        const playerPos = { x: 7, y: 5 }; // เริ่มตรงกลาง
+        const npcs = ref([
+          { dept: 'it', x: 2, y: 2, char: '💻', resolved: false, color: '#a855f7' },
+          { dept: 'hr', x: 12, y: 2, char: '❤️', resolved: false, color: '#ec4899' },
+          { dept: 'finance', x: 2, y: 7, char: '💵', resolved: false, color: '#10b981' },
+          { dept: 'marketing', x: 12, y: 7, char: '📣', resolved: false, color: '#f59e0b' }
         ]);
 
-        const showToast = (message, type = 'success') => {
-          toast.value = { show: true, message, type };
-          setTimeout(() => { toast.value.show = false; }, 3000);
+        const boardroomDesk = { x: 7, y: 4 };
+
+        // แผนผังกำแพงออฟฟิศ (1 = กำแพง/โต๊ะทำงานเดินไม่ได้, 0 = ทางเดิน)
+        const officeMap = [
+          [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+          [1,0,0,0,0,1,0,0,0,1,0,0,0,0,1],
+          [1,0,0,0,0,1,0,0,0,1,0,0,0,0,1],
+          [1,1,1,0,0,1,0,1,0,1,0,0,1,1,1],
+          [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+          [1,0,0,0,0,0,1,0,1,0,0,0,0,0,1],
+          [1,1,1,0,0,1,0,0,0,1,0,0,1,1,1],
+          [1,0,0,0,0,1,0,0,0,1,0,0,0,0,1],
+          [1,0,0,0,0,1,0,0,0,1,0,0,0,0,1],
+          [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        ];
+
+        // รายการไอเด็มสปอน์พยุงชีพ (โบนัสคูปองเงินสด และแต้มพลัง AP)
+        const collectibles = ref([
+          { x: 4, y: 2, type: 'cash', collected: false },
+          { x: 10, y: 2, type: 'cash', collected: false },
+          { x: 4, y: 8, type: 'ap', collected: false },
+          { x: 10, y: 8, type: 'ap', collected: false }
+        ]);
+
+        const startRpgLoop = () => {
+          nextTick(() => {
+            canvas = document.getElementById('rpgCanvas');
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+            
+            // ยกเลิกลูปเก่าถ้ามีค้าง
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            
+            // จับคีย์บอร์ดการควบคุม
+            window.addEventListener('keydown', handleKeydown);
+            renderRpg();
+          });
         };
 
+        const stopRpgLoop = () => {
+          if (animationFrameId) cancelAnimationFrame(animationFrameId);
+          window.removeEventListener('keydown', handleKeydown);
+        };
+
+        const handleKeydown = (e) => {
+          if (view.value !== 'play') return;
+          let nextX = playerPos.x;
+          let nextY = playerPos.y;
+
+          if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { e.preventDefault(); nextY--; }
+          else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { e.preventDefault(); nextY++; }
+          else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { e.preventDefault(); nextX--; }
+          else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { e.preventDefault(); nextX++; }
+
+          tryMove(nextX, nextY);
+        };
+
+        const movePlayer = (direction) => {
+          let nextX = playerPos.x;
+          let nextY = playerPos.y;
+          if (direction === 'up') nextY--;
+          if (direction === 'down') nextY++;
+          if (direction === 'left') nextX--;
+          if (direction === 'right') nextX++;
+          tryMove(nextX, nextY);
+        };
+
+        const tryMove = (nextX, nextY) => {
+          // เช็คขอบเขตกำแพง
+          if (nextY >= 0 && nextY < mapRows && nextX >= 0 && nextX < mapCols) {
+            if (officeMap[nextY][nextX] === 0) {
+              playerPos.x = nextX;
+              playerPos.y = nextY;
+              checkCollisions();
+            }
+          }
+        };
+
+        // ตรวจเช็คการชนไอเท็ม และ ชนโต๊ะทำงานหัวหน้าฝ่ายต่าง ๆ
+        const checkCollisions = () => {
+          // 1. ตรวจชนไอเท็ม
+          collectibles.value.forEach(item => {
+            if (!item.collected && item.x === playerPos.x && item.y === playerPos.y) {
+              item.collected = true;
+              if (item.type === 'cash') {
+                resources.value.budget += 10000;
+                showToast("เก็บคูปองกระแสเงินสดบริษัท: +฿10,000 งบประมาณ!", "success");
+              } else {
+                actionPoints.value += 1;
+                showToast("เก็บแบตเตอรี่สำรองพลังบริหารงาน: +1 AP!", "success");
+              }
+            }
+          });
+
+          // 2. ตรวจชนบอร์ด Desk สรุปไตรมาสตรงกลาง
+          if (playerPos.x === boardroomDesk.x && playerPos.y === boardroomDesk.y) {
+            if (getRemainingTasksCount() === 0) {
+              triggerEndGame('victory');
+            } else {
+              showToast(`กรุณาเดินทางคุยปัญหาเควสต์กับหัวหน้าแผนกให้ครบถ้วนก่อนปิดไตรมาสครับ (เหลืออีก ${getRemainingTasksCount()} แผนก)`, "error");
+              // เด้งถอยหลังเพื่อไม่ให้ติดอยู่ในโต๊ะ
+              playerPos.y++;
+            }
+            return;
+          }
+
+          // 3. ตรวจสอบการเดินชน NPC หัวหน้าแผนก
+          npcs.value.forEach(npc => {
+            if (!npc.resolved && Math.abs(playerPos.x - npc.x) <= 1 && Math.abs(playerPos.y - npc.y) <= 1) {
+              triggerEncounter(npc.dept);
+            }
+          });
+        };
+
+        // วาดภาพสำนักงาน 2D Cyberpunk RPG ลงแคนวาส
+        const renderRpg = () => {
+          if (view.value !== 'play') return;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          // วาดพรมสำนักงานตารางกริด
+          for (let r = 0; r < mapRows; r++) {
+            for (let c = 0; c < mapCols; c++) {
+              if (officeMap[r][c] === 1) {
+                // กำแพง/โต๊ะทำงาน
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                ctx.strokeStyle = '#1e293b';
+                ctx.strokeRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                
+                // ขอบเส้นนีออน
+                ctx.fillStyle = '#312e81';
+                ctx.fillRect(c * tileSize + 4, r * tileSize + 4, tileSize - 8, tileSize - 8);
+              } else {
+                // พื้นทางเดิน
+                ctx.fillStyle = '#05070f';
+                ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                ctx.strokeStyle = '#0f172a';
+                ctx.strokeRect(c * tileSize, r * tileSize, tileSize, tileSize);
+              }
+            }
+          }
+
+          // วาดโต๊ะบอร์ดบริหารตรงกลางออฟฟิศ
+          ctx.fillStyle = '#8b5cf6';
+          ctx.fillRect(boardroomDesk.x * tileSize + 2, boardroomDesk.y * tileSize + 2, tileSize - 4, tileSize - 4);
+          ctx.font = '10px sans-serif';
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText('👔 Desk', boardroomDesk.x * tileSize + 2, boardroomDesk.y * tileSize - 4);
+
+          // วาดไอเท็มสปอน์รอบ ๆ
+          collectibles.value.forEach(item => {
+            if (!item.collected) {
+              ctx.font = '16px sans-serif';
+              ctx.fillText(item.type === 'cash' ? '💵' : '⚡', item.x * tileSize + 8, item.y * tileSize + 22);
+            }
+          });
+
+          // วาดหัวหน้าแผนก (NPCs)
+          npcs.value.forEach(npc => {
+            ctx.fillStyle = npc.resolved ? '#10b981' : npc.color;
+            ctx.beginPath();
+            ctx.arc(npc.x * tileSize + tileSize / 2, npc.y * tileSize + tileSize / 2, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            // อีโมจิแสดงตัวตนแผนก
+            ctx.font = '14px sans-serif';
+            ctx.fillText(npc.char, npc.x * tileSize + 9, npc.y * tileSize + 22);
+
+            // ชื่อย่อแผนกกำกับด้านบน
+            ctx.font = '8px Arial';
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText(npc.dept.toUpperCase(), npc.x * tileSize + 4, npc.y * tileSize - 2);
+          });
+
+          // วาดตัวละครผู้บริหาร (Player CEO)
+          ctx.fillStyle = '#6366f1';
+          ctx.beginPath();
+          ctx.arc(playerPos.x * tileSize + tileSize / 2, playerPos.y * tileSize + tileSize / 2, 13, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#ec4899';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          ctx.font = '14px sans-serif';
+          ctx.fillText('😎', playerPos.x * tileSize + 9, playerPos.y * tileSize + 22);
+
+          animationFrameId = requestAnimationFrame(renderRpg);
+        };
+
+
+        // ────────────────────────────────────────────────────────────────────────
+        // HELPER FUNCTIONS & UI GETTERS
+        // ────────────────────────────────────────────────────────────────────────
         const formatValuation = (val) => {
           return Math.round(val).toLocaleString();
         };
@@ -538,63 +808,44 @@
           return Math.min(Math.max((value / max) * 100, 0), 100);
         };
 
+        const getRemainingTasksCount = () => {
+          return npcs.value.filter(n => !n.resolved).length;
+        };
+
+        const getDeptName = (dept) => {
+          if (dept === 'it') return 'เทคโนโลยี / IT';
+          if (dept === 'hr') return 'ทรัพยากรบุคคล / HR';
+          if (dept === 'finance') return 'การเงิน / Finance';
+          return 'การตลาด / PR & Marketing';
+        };
+
+        const setDepartment = (dept) => {
+          selectedDept.value = dept;
+          showToast(`เปลี่ยนทักษะเป็นสายงาน ${getDeptName(dept)} สำเร็จ!`, "success");
+        };
+
         const setDifficulty = (level) => {
           difficulty.value = level;
-          showToast(`สวิตช์ความท้าทายระดับ ${level.toUpperCase()} เรียบร้อย!`);
-        };
-
-        // สูตรพยากรณ์การประเมินมูลค่า
-        const calculateValuation = () => {
-          // ด่านสูง ๆ จะถูกหักคะแนนประเมินด้วยหนี้กู้ยืมสะสม
-          const rawVal = (resources.value.budget * 0.7) + 
-                         (resources.value.talent * 500) + 
-                         (resources.value.innovation * 800) + 
-                         (resources.value.reputation * 600) - 
-                         (resources.value.debt * 1.2);
-          return Math.max(Math.round(rawVal), 0);
+          showToast(`ปรับด่านท้าทายวิกฤตเป็นระดับ ${level.toUpperCase()}!`);
         };
 
         // ────────────────────────────────────────────────────────────────────────
-        // AUTHENTICATION FLOW
+        // HELPER FUNCTIONS & FIREBASE AUTH SYSTEMS
         // ────────────────────────────────────────────────────────────────────────
-        onMounted(async () => {
-          authLoading.value = true;
-          try {
-            if (isLocalEnv) {
-              if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-              } else {
-                await signInAnonymously(auth);
-              }
-            }
-          } catch (e) {
-            console.error("Auth initialization failed:", e);
-          } finally {
-            authLoading.value = false;
-          }
-
-          onAuthStateChanged(auth, (usr) => {
-            if (usr) {
-              user.value = usr;
-              userDisplayName.value = usr.displayName || usr.email?.split('@')[0] || 'Executive-CEO';
-              userEmail.value = usr.email || 'guest@company.com';
-              view.value = 'intro';
-            } else {
-              user.value = null;
-              view.value = 'login';
-            }
-          });
-        });
+        const showToast = (message, type = 'success') => {
+          toast.value = { show: true, message, type };
+          setTimeout(() => { toast.value.show = false; }, 3500);
+        };
 
         const loginWithGoogle = async () => {
           authLoading.value = true;
           const provider = new GoogleAuthProvider();
           try {
             await signInWithPopup(auth, provider);
-            showToast("เข้าบริหารและยืนยันสิทธิ์เรียบร้อย!");
+            showToast("ยืนยันสิทธิ์ล็อกอินสำเร็จ!", "success");
           } catch (error) {
-            console.error(error);
-            showToast("สิทธิ์การเข้าใช้งานขัดข้อง กรุณาลองใหม่", "error");
+            console.error("Google Auth Fail:", error);
+            showToast(`สิทธิ์ขัดข้อง: [${error.code || 'UNKNOWN'}]`, "error");
           } finally {
             authLoading.value = false;
           }
@@ -603,10 +854,18 @@
         const loginAnonymously = async () => {
           authLoading.value = true;
           try {
+            const rawName = guestNameInput.value.trim();
+            if (!rawName) {
+              showToast("กรุณาระบุชื่อเล่นเพื่อเข้าร่วมประเมินบอร์ดด้วยครับ!", "error");
+              authLoading.value = false;
+              return;
+            }
+            localStorage.setItem('ceo_guest_nickname', rawName);
             await signInAnonymously(auth);
-            showToast("เข้าระบบในนามบัญชีสังเกตการณ์");
+            showToast(`ยินดีต้อนรับ CEO ${rawName}!`, "success");
           } catch (e) {
-            showToast("ไม่สามารถเข้าแบบ Guest ได้: " + e.message, "error");
+            console.error(e);
+            showToast("เข้าระบบแบบผู้สังเกตการณ์ขัดข้อง", "error");
           } finally {
             authLoading.value = false;
           }
@@ -614,14 +873,49 @@
 
         const logout = () => {
           signOut(auth);
-          showToast("ลงชื่ออกจากตำแหน่ง CEO");
+          showToast("ลงชื่อออกจากตำแหน่งบริหาร", "success");
         };
 
+        onMounted(async () => {
+          authLoading.value = true;
+          const savedNickname = localStorage.getItem('ceo_guest_nickname');
+          if (savedNickname) {
+            guestNameInput.value = savedNickname;
+          }
+
+          try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+              await signInWithCustomToken(auth, __initial_auth_token);
+            }
+          } catch (e) {
+            console.error(e);
+          } finally {
+            authLoading.value = false;
+          }
+
+          onAuthStateChanged(auth, (usr) => {
+            if (usr) {
+              user.value = usr;
+              if (usr.isAnonymous) {
+                const activeName = localStorage.getItem('ceo_guest_nickname');
+                userDisplayName.value = activeName || 'Guest-CEO';
+              } else {
+                userDisplayName.value = usr.displayName || usr.email?.split('@')[0] || 'Executive-CEO';
+              }
+              userEmail.value = usr.email || 'guest@company.com';
+              view.value = 'intro';
+              startRealtimeLeaderboard();
+            } else {
+              user.value = null;
+              view.value = 'login';
+            }
+          });
+        });
+
         // ────────────────────────────────────────────────────────────────────────
-        // HARDCORE GAME ENGINE LOGIC
+        // GAME STRATEGY SYSTEM WITH RPG ADAPTATION
         // ────────────────────────────────────────────────────────────────────────
         const startGame = () => {
-          // ตั้งค่าสัดส่วนทรัพยากรเริ่มต้นตามด่านความยาก
           if (difficulty.value === 'normal') {
             resources.value = { budget: 120000, talent: 80, innovation: 50, reputation: 60, debt: 0 };
           } else if (difficulty.value === 'hard') {
@@ -629,21 +923,59 @@
           } else { // expert
             resources.value = { budget: 50000, talent: 60, innovation: 40, reputation: 45, debt: 0 };
           }
-          
-          currentIdx.value = 0;
+
           actionPoints.value = 3;
-          valuationHistory.value = [calculateValuation()]; // เก็บค่าไตรมาสแรกเริ่ม
+          valuationHistory.value = [calculateValuation()];
           scoreSubmitted.value = false;
+
+          // รีเซ็ต NPCs เควสต์และไอเท็มรอบออฟฟิศใหม่ทั้งหมด
+          npcs.value.forEach(n => n.resolved = false);
+          collectibles.value.forEach(item => item.collected = false);
+          playerPos.x = 7;
+          playerPos.y = 5;
+
           view.value = 'play';
+          startRpgLoop();
         };
 
-        // การประมวลกลยุทธ์เมื่อกดยืนยันตัดสินใจปัญหาประจำไตรมาส
-        const makeDecision = (opt) => {
+        const calculateValuation = () => {
+          let budgetMult = 0.5;
+          let talentMult = 400;
+          let innovMult = 400;
+          let repMult = 400;
+
+          if (selectedDept.value === 'it') innovMult = 1200;
+          else if (selectedDept.value === 'hr') talentMult = 1200;
+          else if (selectedDept.value === 'finance') budgetMult = 1.5;
+          else if (selectedDept.value === 'marketing') repMult = 1200;
+
+          const rawVal = (resources.value.budget * budgetMult) + 
+                         (resources.value.talent * talentMult) + 
+                         (resources.value.innovation * innovMult) + 
+                         (resources.value.reputation * repMult) - 
+                         (resources.value.debt * 1.3);
+
+          return Math.max(Math.round(rawVal), 0);
+        };
+
+        const triggerEncounter = (dept) => {
+          stopRpgLoop();
+          activeEncounterDept.value = dept;
+
+          // ดึงคำถามเฉพาะทางขึ้นมาเผชิญ
+          if (dept === 'it') activeCrisis.value = scenariosIT[0];
+          else if (dept === 'hr') activeCrisis.value = scenariosHR[0];
+          else if (dept === 'finance') activeCrisis.value = scenariosFinance[0];
+          else activeCrisis.value = scenariosMarketing[0];
+
+          view.value = 'encounter';
+        };
+
+        const makeDecisionInEncounter = (opt) => {
           let multiplier = 1.0;
           if (difficulty.value === 'hard') multiplier = 1.15;
           if (difficulty.value === 'expert') multiplier = 1.3;
 
-          // หักทรัพยากรบวกตัวแปรตามด่านความยาก
           const finalBudgetChange = opt.budget * (opt.budget < 0 ? multiplier : 1.0);
           const finalTalentChange = opt.talent * (opt.talent < 0 ? multiplier : 1.0);
           const finalInnovationChange = opt.innovation * (opt.innovation < 0 ? multiplier : 1.0);
@@ -654,95 +986,85 @@
           resources.value.innovation = Math.min(Math.max(resources.value.innovation + finalInnovationChange, 0), 100);
           resources.value.reputation = Math.min(Math.max(resources.value.reputation + finalReputationChange, 0), 100);
 
-          // 🚨 ระบบดอกเบี้ยจ่ายสะสมสิ้นไตรมาส
+          // หักดอกเบี้ยจ่ายจากหนี้เก่าพกพา
           if (resources.value.debt > 0) {
             const interest = Math.round(resources.value.debt * 0.15);
             resources.value.budget -= interest;
-            showToast(`หักดอกเบี้ยกู้ยืมอัตโนมัติ ฿${formatValuation(interest)} สิ้นไตรมาส`, 'error');
           }
 
-          // สุ่มเหตุการณ์เชิงวิกฤตแทรกแซงเฉพาะด่านความยากระดับ Expert
-          if (difficulty.value === 'expert' && Math.random() < 0.6) {
-            const randomCrises = [
-              { msg: "ตลาดผันผวน: ดึงระดับชื่อเสียงของบริษัทติดลบ 10%", key: "reputation", amt: -10 },
-              { msg: "พนักงานประท้วงสวัสดิการ: พลังทีมลดลง 15%", key: "talent", amt: -15 },
-              { msg: "คู่แข่งจัด R&D: นวัตกรรมของเราถูกลดทอนลง 10%", key: "innovation", amt: -10 }
-            ];
-            const chosen = randomCrises[Math.floor(Math.random() * randomCrises.length)];
-            resources.value[chosen.key] = Math.min(Math.max(resources.value[chosen.key] + chosen.amt, 0), 100);
-            setTimeout(() => {
-              showToast(`วิกฤตสุ่มแทรกแซง: ${chosen.msg}`, 'error');
-            }, 800);
+          // สุ่มพายุลุยแทรกสำหรับ Expert
+          if (difficulty.value === 'expert' && Math.random() < 0.5) {
+            resources.value.reputation = Math.max(resources.value.reputation - 10, 0);
           }
 
-          // บันทึกประวัติมูลค่าเพื่อทำกราฟตอนจบ
+          // มาร์ก NPC ตัวนี้ว่าเคลียร์แล้ว
+          const targetNpc = npcs.value.find(n => n.dept === activeEncounterDept.value);
+          if (targetNpc) targetNpc.resolved = true;
+
           valuationHistory.value.push(calculateValuation());
 
-          // เช็คเงื่อนไขล้มละลายทันทีหลังหักค่าเสร็จ
+          // เช็คสภาพล้มละลายทันควัน
           if (resources.value.budget <= 0 || resources.value.talent <= 0 || resources.value.innovation <= 0 || resources.value.reputation <= 0) {
             triggerEndGame('bankrupt');
             return;
           }
 
-          // สไลด์ไปไตรมาสถัดไป
-          if (currentIdx.value < scenarios.value.length - 1) {
-            currentIdx.value++;
-            actionPoints.value = 3; // รีเซ็ตพลังงานบริหาร AP ของ CEO
-          } else {
-            triggerEndGame('victory');
-          }
+          // กลับเข้าแผนที่หลักเพื่อลุยต่อ
+          view.value = 'play';
+          startRpgLoop();
         };
 
-        // ⚡️ การเลือกดำเนินการโครงการเชิงรุก (Strategic Initiative Selection)
+        const skipCrisisWithAP = () => {
+          if (actionPoints.value < 1) return;
+          actionPoints.value--;
+
+          // พยุงให้ผ่านปัญหาโดยไม่เสียทรัพยากรหลัก
+          const targetNpc = npcs.value.find(n => n.dept === activeEncounterDept.value);
+          if (targetNpc) targetNpc.resolved = true;
+
+          showToast("ใช้พลัง AP บริหารพยุงแผนกให้อยู่รอดข้ามผ่านวิกฤตเรียบร้อย!");
+          valuationHistory.value.push(calculateValuation());
+
+          view.value = 'play';
+          startRpgLoop();
+        };
+
         const executeProject = (type) => {
-          if (type === 'rnd') {
-            resources.value.budget -= 25000;
-            resources.value.innovation = Math.min(resources.value.innovation + 20, 100);
-            actionPoints.value--;
-            showToast("วิจัยนวัตกรรมสำเร็จ: ลุยโปรเจกต์เทคโนโลยี +20% Innovation!");
-          } else if (type === 'hr') {
-            resources.value.budget -= 15000;
-            resources.value.talent = Math.min(resources.value.talent + 20, 100);
-            actionPoints.value--;
-            showToast("อบรมพนักงานสำเร็จ: ปลดล็อกพลังขีดความสามัคคี +20% Talent!");
-          } else if (type === 'esg') {
-            resources.value.budget -= 15000;
-            resources.value.reputation = Math.min(resources.value.reputation + 20, 100);
-            actionPoints.value--;
-            showToast("ทำแคมเปญตลาดสำเร็จ: อัปเกรดความเชื่อมั่นแบรนด์ +20% Reputation!");
-          } else if (type === 'loan') {
+          // ยังคงฟังก์ชันสำหรับใช้ AP ไว้ข้ามเควสได้ทางใจความ
+          if (type === 'loan') {
             resources.value.budget += 50000;
-            resources.value.debt += 50000; // มีอัตราดอกเบี้ยหักรายไตรมาส
-            showToast("กู้เงินด่วนกู้ชีพสำเร็จ: รับกระแสเงินสด ฿50,000 และเพิ่มหนี้สิน!", "success");
+            resources.value.debt += 50000;
+            showToast("กู้เงินด่วนกู้ชีพสำเร็จ: ได้รับ ฿50,000 พ่วงหนี้สะสม!", "success");
           }
         };
 
         const triggerEndGame = (result) => {
+          stopRpgLoop();
           score.value = calculateValuation();
           gameResult.value = result;
           view.value = 'result';
-          
+
           if (result === 'victory') {
-            confetti({ particleCount: 150, spread: 85, origin: { y: 0.6 } });
+            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
           }
 
-          // 📈 วาดกราฟเส้นสรุปแนวโน้มมูลค่าบริษัททันทีที่ประมวลผลจบ
+          // 📈 วาดกราฟสรุปประวัติผลลัพธ์
           nextTick(() => {
             const ctx = document.getElementById('valuationTrendChart').getContext('2d');
-            const labels = ['เริ่ม', 'Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6'].slice(0, valuationHistory.value.length);
-            
+            const labels = ['เริ่ม', 'IT', 'HR', 'Finance', 'PR'].slice(0, valuationHistory.value.length);
+
             new Chart(ctx, {
               type: 'line',
               data: {
                 labels: labels,
                 datasets: [{
-                  label: 'มูลค่าประเมิน (฿)',
+                  label: 'มูลค่า (฿)',
                   data: valuationHistory.value,
                   borderColor: '#6366f1',
                   backgroundColor: 'rgba(99, 102, 241, 0.1)',
                   borderWidth: 3,
                   pointBackgroundColor: '#ec4899',
-                  tension: 0.3,
+                  tension: 0.35,
                   fill: true
                 }]
               },
@@ -750,8 +1072,8 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                  y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
-                  x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+                  y: { grid: { color: '#111827' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                  x: { grid: { color: '#111827' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
                 },
                 plugins: { legend: { display: false } }
               }
@@ -761,9 +1083,10 @@
 
         const getBadge = () => {
           if (gameResult.value === 'bankrupt') return 'CEO กิจการล้มละลาย 📉';
-          if (score.value >= 180000) return 'Unicorn Builder CEO 🦄';
-          if (score.value >= 130000) return 'High Strategic Manager 👔';
-          return 'Startup Explorer CEO 🚀';
+          const maxVal = (200000 * 1.5) + (100 * 1200) + (100 * 1200) + (100 * 1200);
+          if (score.value >= maxVal * 0.6) return 'RPG Unicorn Ruler 🦄';
+          if (score.value >= maxVal * 0.4) return 'RPG Elite Executive 👔';
+          return 'RPG Office Explorer 🚀';
         };
 
         const isCurrentUser = (name) => {
@@ -776,17 +1099,17 @@
         };
 
         // ────────────────────────────────────────────────────────────────────────
-        // FIRESTORE INTERACTIVE DATABASE v2 (เก็บผลลัพธ์แยกเพื่อความเสถียร)
+        // FIRESTORE DATABASE INTERACTION (Strict implementation for RULE 1/2/3)
         // ────────────────────────────────────────────────────────────────────────
         const submitScoreToFirebase = async () => {
           if (!user.value) {
-            showToast("กรุณายืนยันสิทธิ์ก่อนบันทึกคะแนน", "error");
+            showToast("กรุณายืนยันสิทธิ์ล็อกอินก่อนบันทึก", "error");
             return;
           }
           submitting.value = true;
 
           try {
-            const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'scores_strategy_v2');
+            const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'scores_v3_dept');
             
             await addDoc(collectionPath, {
               uid: user.value.uid,
@@ -794,16 +1117,17 @@
               email: userEmail.value,
               score: score.value,
               badge: getBadge(),
+              dept: selectedDept.value,
               diff: difficulty.value,
               timestamp: new Date().toISOString()
             });
 
             scoreSubmitted.value = true;
-            showToast("ส่งคะแนนเข้าสู่นักวิเคราะห์ความท้าทายองค์กรเรียบร้อย!");
+            showToast("ส่งคะแนนของคุณไปบอร์ดคะแนนเรียงลำดับเรียลไทม์แล้ว!");
             
             startRealtimeLeaderboard();
           } catch (e) {
-            console.error(e);
+            console.error("Firebase submit error:", e);
             showToast("ระบบคลาวด์ติดขัด: " + e.message, "error");
           } finally {
             submitting.value = false;
@@ -811,7 +1135,7 @@
         };
 
         const startRealtimeLeaderboard = () => {
-          const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'scores_strategy_v2');
+          const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'scores_v3_dept');
           
           onSnapshot(collectionPath, (snapshot) => {
             const rawScores = [];
@@ -819,22 +1143,29 @@
               rawScores.push(doc.data());
             });
 
-            // เรียงอันดับในหน่วยความจำ RAM (ป้องกันปัญหา Composite Index พังในฐานข้อมูลหลังบ้าน)
             rawScores.sort((a, b) => b.score - a.score);
-
-            leaderboard.value = rawScores.slice(0, 10);
+            leaderboard.value = rawScores;
           }, (err) => {
-            console.error("Leaderboard subscription error:", err);
+            console.error("Leaderboard subscription failed:", err);
           });
         };
 
+        const getFilteredLeaderboard = () => {
+          if (boardTab.value === 'all') {
+            return leaderboard.value.slice(0, 10);
+          }
+          return leaderboard.value.filter(item => item.dept === boardTab.value).slice(0, 10);
+        };
+
         return {
-          view, user, userDisplayName, score, currentIdx, scenarios, toast, resources,
-          startGame, makeDecision, getBadge, isCurrentUser, resetGame,
+          view, user, userDisplayName, score, currentIdx, toast, resources,
+          startGame, makeDecisionInEncounter, getBadge, isCurrentUser, resetGame,
           submitScoreToFirebase, scoreSubmitted, submitting, leaderboard,
           loginWithGoogle, loginAnonymously, logout, authLoading, formatValuation,
-          getPercentage, calculateValuation, gameResult, difficulty, setDifficulty,
-          actionPoints, executeProject
+          getPercentage, calculateValuation, gameResult, selectedDept, setDepartment,
+          getDeptName, difficulty, setDifficulty, actionPoints,
+          executeProject, boardTab, getFilteredLeaderboard, guestNameInput,
+          getRemainingTasksCount, movePlayer, activeEncounterDept, activeCrisis, skipCrisisWithAP
         };
       }
     }).mount('#app');
