@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Corporate Trivia Challenge</title>
+  
+  <!-- CSS & UI Frameworks -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind Custom Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#070a13',
+              card: '#0f1626',
+              accent: '#6366f1',
+              accentHover: '#4f46e5',
+              success: '#10b981',
+              warning: '#f59e0b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    [v-cloak] { display: none !important; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #070a13;
+    }
+    .neon-border {
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+    }
+    .neon-glow {
+      text-shadow: 0 0 10px rgba(99, 102, 241, 0.6);
+    }
+    .fade-enter-active, .fade-leave-active {
+      transition: opacity 0.3s ease;
+    }
+    .fade-enter-from, .fade-leave-to {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+  <div id="app" v-cloak class="w-full max-w-lg">
+    
+    <!-- ระบบแจ้งเตือนด่วน (Toast Alert) -->
+    <transition name="fade">
+      <div v-if="toast.show" 
+           :class="['fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-2xl shadow-2xl flex items-center space-x-2 text-sm font-semibold border transition-all', 
+                    toast.type === 'success' ? 'bg-emerald-950/95 border-emerald-500 text-emerald-300' : 'bg-rose-950/95 border-rose-500 text-rose-300']">
+        <i :class="toast.type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-exclamation'"></i>
+        <span>{{ toast.message }}</span>
+      </div>
+    </transition>
+
+    <!-- หน้าต่างควบคุมหลักของตัวเกม (Main Card Container) -->
+    <div class="bg-brand-card rounded-3xl p-6 md:p-8 shadow-2xl border border-slate-800/80 relative overflow-hidden neon-border">
+      
+      <!-- เอฟเฟกต์แสงไฟพื้นหลัง (Ambient Glow) -->
+      <div class="absolute -top-32 -right-32 w-64 h-64 bg-brand-accent/20 blur-[100px] rounded-full pointer-events-none"></div>
+      <div class="absolute -bottom-32 -left-32 w-64 h-64 bg-pink-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+
+      <!-- 1. หน้าล็อกอินเข้าสู่ระบบ (Login Screen) -->
+      <div v-if="view === 'login'" class="text-center space-y-8 py-6">
+        <div class="relative inline-block">
+          <div class="w-24 h-24 bg-brand-accent/20 rounded-3xl flex items-center justify-center mx-auto border border-brand-accent/30 shadow-inner">
+            <i class="fa-solid fa-gamepad text-5xl text-brand-accent neon-glow"></i>
+          </div>
+          <span class="absolute -bottom-1 -right-1 flex h-4 w-4">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-500"></span>
+          </span>
+        </div>
+
+        <div class="space-y-2">
+          <h1 class="text-3xl font-black tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            TRIVIA CHALLENGE
+          </h1>
+          <p class="text-sm text-slate-400">ระบบเกมนวัตกรรมเรียนรู้ค่านิยมและข้อมูลองค์กร</p>
+        </div>
+
+        <div class="space-y-4 pt-4">
+          <!-- ปุ่มล็อกอินผ่าน Google Workspace (พนักงานเข้าใช้ผ่านบัญชีบริษัท) -->
+          <button @click="loginWithGoogle" :disabled="authLoading"
+                  class="w-full bg-brand-accent hover:bg-brand-accentHover active:scale-[0.98] py-4 rounded-2xl font-bold transition-all flex items-center justify-center space-x-3 shadow-lg shadow-brand-accent/35">
+            <i class="fa-brands fa-google text-lg"></i>
+            <span>{{ authLoading ? 'กำลังเตรียมการระบบ...' : 'เข้าใช้ผ่าน Google Workspace' }}</span>
+          </button>
+
+          <!-- ปุ่มจำลองเล่นด่วนสำหรับทดสอบระบบ (Anonymous Guest Mode) -->
+          <button @click="loginAnonymously" :disabled="authLoading"
+                  class="w-full bg-slate-850 hover:bg-slate-800 active:scale-[0.98] py-4 rounded-2xl font-bold transition-all flex items-center justify-center space-x-3 border border-slate-700/70 text-slate-300">
+            <i class="fa-solid fa-user-secret"></i>
+            <span>ทดลองเล่นแบบด่วน (Guest Mode)</span>
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-500">จำกัดสิทธิ์เฉพาะบุคลากรภายในเครือข่ายองค์กรเท่านั้น</p>
+      </div>
+
+      <!-- 2. หน้าแนะนำรายละเอียดก่อนเริ่มเล่น (Lobby Screen) -->
+      <div v-if="view === 'intro'" class="space-y-6 py-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-brand-accent">
+              <i class="fa-solid fa-user-astronaut text-lg"></i>
+            </div>
+            <div>
+              <p class="text-xs text-slate-400">ผู้เข้าร่วมการแข่งขัน</p>
+              <p class="text-sm font-bold text-slate-200 truncate max-w-[180px]">{{ userDisplayName }}</p>
+            </div>
+          </div>
+          <button @click="logout" class="text-xs text-slate-500 hover:text-rose-400 transition flex items-center">
+            <span>ออกจากระบบ</span>
+            <i class="fa-solid fa-arrow-right-from-bracket ml-1.5"></i>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-lg font-bold text-slate-200 flex items-center">
+            <i class="fa-solid fa-circle-info mr-2 text-brand-accent"></i> กติกาชิงรางวัลเกียรติยศ
+          </h2>
+          <div class="grid gap-3 text-sm text-slate-400">
+            <div class="flex items-start space-x-3 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+              <i class="fa-solid fa-clock text-brand-accent mt-1"></i>
+              <p>แต่ละข้อมีเวลาตอบคำถามเพียง <b>15 วินาที</b> ยิ่งคิดเร็ว ตอบเร็ว จะยิ่งคูณแต้มโบนัสความไวมากขึ้น!</p>
+            </div>
+            <div class="flex items-start space-x-3 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+              <i class="fa-solid fa-award text-brand-accent mt-1"></i>
+              <p>คะแนนเต็มฐานข้อละ 1,000 คะแนน + คะแนนโบนัสเวลาสูงสุดอีกข้อละ 500 คะแนน</p>
+            </div>
+            <div class="flex items-start space-x-3 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+              <i class="fa-solid fa-shield-halved text-brand-accent mt-1"></i>
+              <p>ข้อมูลทั้งหมดบันทึกลงสู่เซิร์ฟเวอร์แบบเรียลไทม์เพื่อจัดอันดับผู้เล่นสูงสุดประจำเดือน</p>
+            </div>
+          </div>
+        </div>
+
+        <button @click="startGame" 
+                class="w-full bg-brand-accent hover:bg-brand-accentHover text-white py-4 rounded-2xl font-bold text-lg transition-all shadow-lg active:scale-[0.98]">
+          เริ่มประลองความรู้ <i class="fa-solid fa-play ml-2"></i>
+        </button>
+      </div>
+
+      <!-- 3. หน้าจอสมรภูมิการเล่นเกม (Gameplay Screen) -->
+      <div v-if="view === 'play'" class="space-y-6">
+        <!-- แผงแสดงสถิติคะแนนและข้อ -->
+        <div class="flex justify-between items-center">
+          <div class="px-3 py-1.5 bg-slate-850 rounded-full text-xs font-bold text-slate-400 border border-slate-800">
+            ความคืบหน้า: ข้อที่ {{ currentIdx + 1 }} / {{ questions.length }}
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-500 block uppercase font-bold tracking-wider">SCORE</span>
+            <span class="text-2xl font-black text-amber-400 neon-glow">{{ score }}</span>
+          </div>
+        </div>
+
+        <!-- แถบจับเวลาถอยหลัง (Timer Bar) -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between text-xs font-semibold text-slate-400">
+            <span>เวลาการวิเคราะห์โจทย์</span>
+            <span :class="['font-bold', timer <= 5 ? 'text-rose-400 animate-pulse' : 'text-slate-400']">{{ timer }} วินาที</span>
+          </div>
+          <div class="h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+            <div class="h-full bg-gradient-to-r from-indigo-500 to-brand-accent rounded-full transition-all duration-1000 ease-linear" 
+                 :class="{'bg-rose-500': timer <= 5}"
+                 :style="{ width: (timer / 15) * 100 + '%' }"></div>
+          </div>
+        </div>
+
+        <!-- กล่องคำถามหลัก (Question Card) -->
+        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800">
+          <h2 class="text-lg md:text-xl font-bold leading-relaxed text-slate-100">
+            {{ questions[currentIdx].q }}
+          </h2>
+        </div>
+
+        <!-- รายการปุ่มช้อยส์คำตอบ 4 ตัวเลือก (Answer Options) -->
+        <div class="grid gap-3">
+          <button v-for="(opt, idx) in questions[currentIdx].opts" :key="idx"
+                  @click="answerQuestion(idx)"
+                  class="w-full text-left p-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 active:scale-[0.99] transition-all flex justify-between items-center group">
+            <span class="text-slate-300 font-medium group-hover:text-white">{{ opt }}</span>
+            <i class="fa-solid fa-chevron-right text-slate-600 group-hover:text-brand-accent transition-colors"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. หน้าจอวิเคราะห์ผลสรุปและแสดงทำเนียบเกียรติยศ (Result & Real-time Leaderboard) -->
+      <div v-if="view === 'result'" class="space-y-6 text-center py-4">
+        <div class="space-y-2">
+          <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-400 border border-emerald-500/20">
+            <i class="fa-solid fa-medal text-3xl"></i>
+          </div>
+          <h2 class="text-2xl font-black text-emerald-400">จบการทดสอบสำเร็จ!</h2>
+          <p class="text-sm text-slate-400">ระบบได้วิเคราะห์ขีดระดับทักษะความรู้ของคุณแล้ว</p>
+        </div>
+
+        <!-- แผงแสดงคะแนนรวมและยศเกียรติยศ -->
+        <div class="bg-slate-900/60 py-6 px-4 rounded-2xl border border-slate-800">
+          <span class="text-xs text-slate-500 uppercase tracking-widest font-black block">TOTAL SCORE</span>
+          <span class="text-5xl font-black text-amber-400 my-1 block neon-glow">{{ score }}</span>
+          <span class="text-xs px-3 py-1 bg-slate-850 text-slate-300 rounded-full border border-slate-700 inline-block mt-2">
+            เกียรติประวัติ: {{ getBadge() }}
+          </span>
+        </div>
+
+        <!-- เมนูส่งข้อมูลคะแนนเข้าระบบฐานข้อมูลหลัก -->
+        <div v-if="!scoreSubmitted" class="space-y-3">
+          <button @click="submitScoreToFirebase" :disabled="submitting"
+                  class="w-full bg-brand-accent hover:bg-brand-accentHover text-white py-4 rounded-2xl font-bold transition shadow-lg active:scale-[0.98] disabled:bg-slate-700 flex items-center justify-center space-x-2">
+            <i v-if="submitting" class="fa-solid fa-circle-notch animate-spin"></i>
+            <i v-else class="fa-solid fa-cloud-arrow-up"></i>
+            <span>{{ submitting ? 'กำลังบันทึกคะแนน...' : 'บันทึกคะแนนเข้าทำเนียบรวม' }}</span>
+          </button>
+          <button @click="resetGame" class="text-sm text-slate-400 hover:text-slate-300 transition block mx-auto">
+            <i class="fa-solid fa-arrow-rotate-left mr-1"></i> ทำคะแนนใหม่อีกครั้ง
+          </button>
+        </div>
+
+        <!-- ระบบบอร์ดเกียรติยศแบบเรียลไทม์ (Live Real-time Leaderboard) -->
+        <div v-if="scoreSubmitted" class="space-y-4 pt-4 border-t border-slate-800 text-left">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center">
+              <i class="fa-solid fa-trophy mr-2 text-amber-400"></i> TOP 10 LEADERBOARD
+            </h3>
+            <span class="flex h-2 w-2 relative">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+          </div>
+
+          <div class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+            <div v-for="(row, idx) in leaderboard" :key="idx" 
+                 :class="['flex justify-between items-center p-3 rounded-xl border transition-all text-sm', 
+                          isCurrentUser(row.user) ? 'bg-brand-accent/15 border-brand-accent/60' : 'bg-slate-900/40 border-slate-800/80']">
+              <div class="flex items-center space-x-3">
+                <span :class="['w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black shadow-inner',
+                              idx === 0 ? 'bg-amber-400 text-slate-950' : 
+                              idx === 1 ? 'bg-slate-300 text-slate-950' : 
+                              idx === 2 ? 'bg-amber-700 text-white' : 'bg-slate-800 text-slate-400']">
+                  {{ idx + 1 }}
+                </span>
+                <span class="font-bold text-slate-200">{{ row.user }}</span>
+              </div>
+              <span class="font-bold text-amber-400">{{ row.score }} Pt</span>
+            </div>
+            
+            <div v-if="leaderboard.length === 0" class="text-center py-4 text-slate-500 text-xs">
+              ระบบกำลังเชื่อมโยงข้อมูลเกียรติยศ...
+            </div>
+          </div>
+
+          <button @click="resetGame" 
+                  class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-3.5 rounded-2xl font-bold text-sm transition-all border border-slate-700">
+            <i class="fa-solid fa-gamepad mr-2"></i> เล่นอีกรอบ
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Firebase Scripts Modules (การดึงคลังแสงเครื่องมือมาตรฐานสากล) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, query, addDoc, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // ────────────────────────────────────────────────────────────────────────
+    // ⚙️ CONFIGURATION: ค่าเชื่อมต่อระบบจริงของคุณที่พึ่งสร้างไว้
+    // ────────────────────────────────────────────────────────────────────────
+    const companyFirebaseConfig = {
+      apiKey: "AIzaSyD1TMotoE7PZyVZ8MyNlbvUPtzS2gOGWFg",
+      authDomain: "company-trivia-game-2026.firebaseapp.com",
+      projectId: "company-trivia-game-2026",
+      storageBucket: "company-trivia-game-2026.firebasestorage.app",
+      messagingSenderId: "314423541938",
+      appId: "1:314423541938:web:208537edc5b5ef3b5b09ab",
+      measurementId: "G-K9FZ560287"
+    };
+
+    // ตรวจสอบแอปและพิกัดรันเพื่อความสมดุล (Fallback to Default if local platform triggers)
+    const isLocalEnv = typeof __firebase_config !== 'undefined';
+    const firebaseConfig = isLocalEnv ? JSON.parse(__firebase_config) : companyFirebaseConfig;
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'corporate-trivia-game-production';
+
+    // ────────────────────────────────────────────────────────────────────────
+    // INITIALIZATION (เริ่มต้นใช้บริการระบบ Firebase หลังบ้าน)
+    // ────────────────────────────────────────────────────────────────────────
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const view = ref('login'); // คุมหน้าเพจ: login, intro, play, result
+        const user = ref(null);
+        const userDisplayName = ref('');
+        const userEmail = ref('');
+        const score = ref(0);
+        const currentIdx = ref(0);
+        const timer = ref(15);
+        const timerInterval = ref(null);
+        const submitting = ref(false);
+        const scoreSubmitted = ref(false);
+        const leaderboard = ref([]);
+        const authLoading = ref(false);
+
+        const toast = ref({ show: false, message: '', type: 'success' });
+
+        // 📝 ชุดคำถามประจำองค์กร (สามารถสลับหรือเพิ่มประเด็นได้ตามหัวข้อพรีเซนต์)
+        const questions = ref([
+          { q: "1. ค่านิยมของบริษัทเราที่มีชื่อว่า 'Integrity' เน้นคุณสมบัติด้านใดที่สุด?", opts: ["ความทะเยอทะยานเชิงธุรกิจ", "ความตรงไปตรงมาและการรักษาคำมั่นสัญญา", "การประดิษฐ์ผลิตภัณฑ์ใหม่", "ความฉับไวในการเข้ายึดครองส่วนแบ่งตลาด"], a: 1 },
+          { q: "2. กรณีเกิดเหตุฉุกเฉินทางไซเบอร์ เช่น ได้รับอีเมลหลอกลวง (Phishing) ควรแจ้งแผนกใด?", opts: ["HR (ฝ่ายบุคคล)", "IT Support หรือ Security Operation Center (SOC)", "ฝ่ายขายและการตลาด", "แจ้งเพื่อนร่วมงานในกลุ่มไลน์ก็พอ"], a: 1 },
+          { q: "3. มาตรฐานความปลอดภัยข้อมูลข่าวสารที่องค์กรสากลมุ่งเน้นการปฏิบัติตามคือข้อใด?", opts: ["ISO 27001", "ISO 9001", "ISO 14001", "ISO 45001"], a: 0 },
+          { q: "4. กฎหมายการปกป้องคุ้มครองข้อมูลส่วนบุคคลของลูกค้าและพนักงานมีชื่อย่อว่าอะไร?", opts: ["GDPR & PDPA", "พ.ร.บ. คุ้มครองแรงงาน", "พ.ร.บ. คอมพิวเตอร์การบัญชี", "พ.ร.บ. รักษาความสะอาด"], a: 0 },
+          { q: "5. หากพนักงานพบเห็นช่องว่างความเสี่ยงหรือแนวทางการพัฒนานวัตกรรมองค์กร ควรทำอย่างไร?", opts: ["เก็บข้อเสนอไว้ในใจเงียบ ๆ", "เสนอเรื่องผ่านทางระบบ Innovation Portal ของบริษัท", "รอให้คนอื่นเจอแล้วค่อยทำตาม", "โพสต์ลงในโซเชียลมีเดียส่วนตัว"], a: 1 }
+        ]);
+
+        const showToast = (message, type = 'success') => {
+          toast.value = { show: true, message, type };
+          setTimeout(() => { toast.value.show = false; }, 3000);
+        };
+
+        // ────────────────────────────────────────────────────────────────────────
+        // AUTHENTICATION FLOW (คุมความปลอดภัยและการระบุอีเมล)
+        // ────────────────────────────────────────────────────────────────────────
+        onMounted(async () => {
+          authLoading.value = true;
+          try {
+            if (isLocalEnv) {
+              if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+              } else {
+                await signInAnonymously(auth);
+              }
+            }
+          } catch (e) {
+            console.error("Auth initialization error:", e);
+          } finally {
+            authLoading.value = false;
+          }
+
+          // คอยดักจับสถานะล็อกอินเข้าสู่ระบบ
+          onAuthStateChanged(auth, (usr) => {
+            if (usr) {
+              user.value = usr;
+              userDisplayName.value = usr.displayName || usr.email?.split('@')[0] || 'Employee-User';
+              userEmail.value = usr.email || 'guest@company.com';
+              view.value = 'intro';
+            } else {
+              user.value = null;
+              view.value = 'login';
+            }
+          });
+        });
+
+        // ล็อกอินทางการด้วยระบบสแกน Google Account
+        const loginWithGoogle = async () => {
+          authLoading.value = true;
+          const provider = new GoogleAuthProvider();
+          try {
+            await signInWithPopup(auth, provider);
+            showToast("ยินดีต้อนรับ เข้าสู่ระบบสากลสำเร็จ!");
+          } catch (error) {
+            console.error("Google authentication failed:", error);
+            showToast("การตรวจสอบสิทธิ์ล้มเหลว กรุณาลองใหม่อีกครั้ง", "error");
+          } finally {
+            authLoading.value = false;
+          }
+        };
+
+        // ทางเลือกล็อกอินจำลองด่วน (สำหรับใช้พรีเซนต์กรณีบัญชีนอกระบบองค์กร)
+        const loginAnonymously = async () => {
+          authLoading.value = true;
+          try {
+            await signInAnonymously(auth);
+            showToast("เข้าระบบในนามผู้ใช้ชั่วคราว");
+          } catch (e) {
+            showToast("ไม่สามารถสร้างบัญชีด่วนได้: " + e.message, "error");
+          } finally {
+            authLoading.value = false;
+          }
+        };
+
+        const logout = () => {
+          signOut(auth);
+          showToast("ลงชื่อออกจากระบบเรียบร้อยแล้ว");
+        };
+
+        // ────────────────────────────────────────────────────────────────────────
+        // GAMEPLAY ENGINE (ประมวลระบบเล่นเกมเชิงกลยุทธ์ความไว)
+        // ────────────────────────────────────────────────────────────────────────
+        const startGame = () => {
+          score.value = 0;
+          currentIdx.value = 0;
+          view.value = 'play';
+          startTimer();
+        };
+
+        const startTimer = () => {
+          timer.value = 15;
+          clearInterval(timerInterval.value);
+          timerInterval.value = setInterval(() => {
+            if (timer.value > 0) {
+              timer.value--;
+            } else {
+              answerQuestion(-1); // ถือว่าตอบช้าเกินเวลาและข้ามไปข้อถัดไป
+            }
+          }, 1000);
+        };
+
+        const answerQuestion = (selectedIdx) => {
+          clearInterval(timerInterval.value);
+          const currentQuestion = questions.value[currentIdx.value];
+
+          if (selectedIdx === currentQuestion.a) {
+            // ระบบสะสมแต้ม: คะแนนข้อ 1000 + (วินาทีความเร็วที่เหลือคูณ 50)
+            const speedBonus = timer.value * 50;
+            score.value += (1000 + speedBonus);
+            showToast("ตอบถูก! ได้รับแต้มบวก " + (1000 + speedBonus) + " คะแนน", "success");
+          } else {
+            showToast("คำตอบยังไม่ถูกต้องสำหรับข้อนี้!", "error");
+          }
+
+          // สไลด์เปลี่ยนข้อถัดไป
+          setTimeout(() => {
+            if (currentIdx.value < questions.value.length - 1) {
+              currentIdx.value++;
+              startTimer();
+            } else {
+              view.value = 'result';
+              // เอฟเฟกต์พลุดิจิทัลแสดงความยินดีหลังเล่นจบ
+              confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+            }
+          }, 800);
+        };
+
+        const getBadge = () => {
+          const maxPossible = questions.value.length * 1750;
+          if (score.value >= maxPossible * 0.8) return 'Platinum Specialist 🏆';
+          if (score.value >= maxPossible * 0.55) return 'Gold Professional 🥇';
+          return 'Silver Contributor 🥈';
+        };
+
+        const isCurrentUser = (name) => {
+          return userDisplayName.value.startsWith(name);
+        };
+
+        const resetGame = () => {
+          score.value = 0;
+          currentIdx.value = 0;
+          scoreSubmitted.value = false;
+          view.value = 'intro';
+        };
+
+        // ────────────────────────────────────────────────────────────────────────
+        // FIRESTORE INTERACTIVE DATABASE (เขียน/ดึงข้อมูลแบบเสถียรที่สุด)
+        // ────────────────────────────────────────────────────────────────────────
+        const submitScoreToFirebase = async () => {
+          if (!user.value) {
+            showToast("กรุณายืนยันตัวตนก่อนส่งคะแนน", "error");
+            return;
+          }
+          submitting.value = true;
+
+          try {
+            // ปฏิบัติตามกฎเหล็ก: strict path เพื่อให้สิทธิ์ Firebase Security Rules ผ่านฉลุย
+            const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'scores');
+            
+            // บันทึกประวัติข้อมูลคะแนนและความรวดเร็วลง Firebase
+            await addDoc(collectionPath, {
+              uid: user.value.uid,
+              user: userDisplayName.value,
+              email: userEmail.value,
+              score: score.value,
+              badge: getBadge(),
+              timestamp: new Date().toISOString()
+            });
+
+            scoreSubmitted.value = true;
+            showToast("คะแนนของคุณเข้าทำเนียบเกียรติยศแล้ว!");
+            
+            // เชื่อมโยงและเปิดสัญญาณ Real-time Leaderboard สดทันที
+            startRealtimeLeaderboard();
+          } catch (e) {
+            console.error("Submit score error:", e);
+            showToast("ระบบขัดข้องเครือข่าย: " + e.message, "error");
+          } finally {
+            submitting.value = false;
+          }
+        };
+
+        const startRealtimeLeaderboard = () => {
+          const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'scores');
+          
+          // ดึงข้อมูลและสร้าง Listener รับรู้ความเปลี่ยนแปลง (Real-time update)
+          onSnapshot(collectionPath, (snapshot) => {
+            const rawScores = [];
+            snapshot.forEach((doc) => {
+              rawScores.push(doc.data());
+            });
+
+            // เรียงลำดับจากมากไปน้อยภายในหน่วยความจำ RAM เพื่อป้องกันปัญหา Index พังใน Firebase
+            rawScores.sort((a, b) => b.score - a.score);
+
+            // เก็บเฉพาะ Top 10 สูงสุดขององค์กรเพื่อแสดงบน Leaderboard
+            leaderboard.value = rawScores.slice(0, 10);
+          }, (err) => {
+            console.error("Live Leaderboard subscription failed:", err);
+          });
+        };
+
+        return {
+          view, user, userDisplayName, score, currentIdx, timer, questions, toast,
+          startGame, answerQuestion, getBadge, isCurrentUser, resetGame,
+          submitScoreToFirebase, scoreSubmitted, submitting, leaderboard,
+          loginWithGoogle, loginAnonymously, logout, authLoading
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
