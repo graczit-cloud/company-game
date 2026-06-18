@@ -1,10 +1,10 @@
 <!--
-Chosen Palette: Vibrant Cyberpunk (Deep Slate #05070f, Emerald #10b981, Violet #8b5cf6, Pink #ec4899, Amber #f59e0b)
+Chosen Palette: Vibrant Cyberpunk (Deep Slate #03050c, Emerald #10b981, Violet #8b5cf6, Pink #ec4899, Amber #f59e0b)
 Narrative Plan:
-1. หน้าล็อกอินและยืนยันตัวตน: พนักงานล็อกอินผ่านระบบสากลของบริษัท
-2. หน้ายินดีต้อนรับและการกำหนดโครงสร้าง: ผู้เล่นทำการเลือกฝ่ายงาน (Department) และระดับความยาก (Difficulty)
-3. หน้าจอการตัดสินใจบริหารงาน (Gameplay Dashboard): เปลี่ยนเป็นมุมมอง RPG 2D Top-down บังคับตัวละครเดินไปเก็บไอเท็มพยุงชีพ และคุยกับ NPC ประจำแผนกเพื่อตอบคำถามวิกฤตการณ์
-4. หน้าวิเคราะห์ประเมินผลลัพธ์และจัดลำดับคะแนน: แสดงผลระดับเกรด บริหารกราฟเส้นประวัติมูลค่า และประมวลตารางผู้นำแยกแผนกเรียลไทม์
+1. หน้าล็อกอินและยืนยันตัวตน: เข้าสู่ระบบผ่าน Google หรือระบบสังเกตการณ์พนักงานด่วน
+2. หน้ายินดีต้อนรับ: เลือกฝ่ายงาน (IT, HR, Finance, Marketing) ซึ่งจะกำหนด "Passive Buff" และ "สำรับการ์ดเฉพาะตัว"
+3. หน้าจอเล่นเกม (Roguelike Card Quest): เผชิญหน้าวิกฤตการณ์รายไตรมาส (Quarterly Crises) ในรูปแบบบอสที่มีเกราะและระดับความเสียหาย ผู้เล่นต้องเลือกเล่นการ์ดบนมือเพื่อลด "ความรุนแรงของวิกฤต" ให้เหลือ 0
+4. หน้าวิเคราะห์ประเมินผลและจัดลำดับคะแนน: สรุปคะแนนตามกระแสเงินสดที่เหลือ วาดกราฟเส้น และจัดอันดับ Leaderboard
 Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
 -->
 <!DOCTYPE html>
@@ -12,7 +12,7 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CEO Simulator: Departmental Competency RPG Edition</title>
+  <title>CEO Card Quest: Cyberpunk Roguelike Edition</title>
   
   <!-- CSS Frameworks & Dynamic JS Tools -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -27,8 +27,8 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
         extend: {
           colors: {
             brand: {
-              dark: '#03050a',
-              card: '#0a0e1a',
+              dark: '#03050c',
+              card: '#060a15',
               accent: '#6366f1',
               accentHover: '#4f46e5',
               success: '#10b981',
@@ -45,19 +45,47 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
     [v-cloak] { display: none !important; }
     body {
       font-family: 'Inter', 'Sarabun', system-ui, -apple-system, sans-serif;
-      background-color: #03050a;
+      background-color: #03050c;
     }
     .neon-border {
-      box-shadow: 0 0 25px rgba(99, 102, 241, 0.15);
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.2);
     }
     .neon-glow {
-      text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+      text-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+    }
+    .cyber-panel {
+      background: linear-gradient(135deg, rgba(6, 10, 21, 0.95) 0%, rgba(13, 20, 38, 0.98) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      backdrop-filter: blur(12px);
+    }
+    .card-neon-it {
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+      border: 1px solid rgba(168, 85, 247, 0.5);
+    }
+    .card-neon-hr {
+      box-shadow: 0 0 15px rgba(236, 72, 153, 0.35);
+      border: 1px solid rgba(236, 72, 153, 0.5);
+    }
+    .card-neon-finance {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+    }
+    .card-neon-marketing {
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+      border: 1px solid rgba(245, 158, 11, 0.5);
+    }
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .card-hover:hover {
+      transform: translateY(-16px) scale(1.05);
+      z-index: 50;
     }
     ::-webkit-scrollbar {
       width: 5px;
     }
     ::-webkit-scrollbar-track {
-      background: #03050a;
+      background: #03050c;
     }
     ::-webkit-scrollbar-thumb {
       background: #111827;
@@ -65,338 +93,355 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
     }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen flex items-center justify-center p-1 md:p-4">
+<body class="text-slate-100 min-h-screen flex items-center justify-center p-1 md:p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950/20 via-brand-dark to-brand-dark">
 
-  <div id="app" v-cloak class="w-full max-w-2xl">
+  <div id="app" v-cloak class="w-full max-w-2xl px-2">
     
-    <!-- ระบบสตรีมแจ้งเตือนความปลอดภัย (Toast Interface) -->
+    <!-- ระบบแจ้งเตือนแบนเนอร์ด่วน (Toast Interface) -->
     <transition name="fade">
       <div v-if="toast.show" 
            :class="['fixed top-4 left-1/2 -translate-x-1/2 z-50 px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm font-semibold border transition-all max-w-md w-11/12', 
-                    toast.type === 'success' ? 'bg-emerald-950/95 border-emerald-500 text-emerald-300' : 'bg-rose-950/95 border-rose-500 text-rose-300']">
-        <i :class="toast.type === 'success' ? 'fa-solid fa-circle-check text-lg' : 'fa-solid fa-circle-exclamation text-lg'"></i>
+                    toast.type === 'success' ? 'bg-emerald-950/95 border-emerald-500 text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.2)]' : 'bg-rose-950/95 border-rose-500 text-rose-300 shadow-[0_0_20px_rgba(239,68,68,0.2)]']">
+        <i :class="toast.type === 'success' ? 'fa-solid fa-circle-check text-lg animate-bounce' : 'fa-solid fa-circle-exclamation text-lg animate-ping'"></i>
         <div class="flex-1 text-xs md:text-sm">{{ toast.message }}</div>
       </div>
     </transition>
 
-    <!-- หน้าต่างควบคุมการประเมินคะแนนหลัก (Main Board Shell) -->
-    <div class="bg-brand-card rounded-3xl p-4 md:p-6 shadow-2xl border border-slate-800/80 relative overflow-hidden neon-border">
+    <!-- หน้าต่างควบคุมเกมส์ (Main Command Box) -->
+    <div class="cyber-panel rounded-3xl p-4 md:p-6 shadow-2xl relative overflow-hidden neon-border">
       
-      <!-- บรรยากาศไฟนีออนสว่างไสวด้านหลังเพจ (Ambient Lights) -->
+      <!-- บรรยากาศแอนิเมชั่นออร่าด้านหลัง (Ambient Glowing Background) -->
       <div class="absolute -top-32 -right-32 w-64 h-64 bg-brand-accent/20 blur-[120px] rounded-full pointer-events-none"></div>
-      <div class="absolute -bottom-32 -left-32 w-64 h-64 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+      <div class="absolute -bottom-32 -left-32 w-64 h-64 bg-pink-500/10 blur-[120px] rounded-full pointer-events-none"></div>
 
-      <!-- 1. หน้าล็อกอินยืนยันตัวตน (Login Screen) -->
+      <!-- 1. หน้าล็อกอินและยืนยันตัวตน (Login View) -->
       <div v-if="view === 'login'" class="text-center space-y-8 py-6">
         <div class="relative inline-block">
-          <div class="w-24 h-24 bg-brand-accent/20 rounded-3xl flex items-center justify-center mx-auto border border-brand-accent/30 shadow-inner">
-            <i class="fa-solid fa-graduation-cap text-5xl text-brand-accent neon-glow animate-pulse"></i>
+          <div class="absolute -inset-2 rounded-full border border-dashed border-brand-accent/40 animate-spin" style="animation-duration: 20s"></div>
+          <div class="w-24 h-24 bg-brand-accent/20 rounded-3xl flex items-center justify-center mx-auto border border-brand-accent/40 shadow-[0_0_25px_rgba(99,102,241,0.35)]">
+            <i class="fa-solid fa-shield-halved text-5xl text-indigo-400 neon-glow animate-pulse"></i>
           </div>
-          <span class="absolute -bottom-1 -right-1 flex h-4 w-4">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-500"></span>
-          </span>
         </div>
 
         <div class="space-y-2">
-          <h1 class="text-3xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            CEO SIMULATOR
+          <h1 class="text-3xl md:text-4xl font-black tracking-wider bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent neon-glow">
+            CEO CARD QUEST
           </h1>
-          <p class="text-xs md:text-sm text-slate-400">ระบบทดสอบวิเคราะห์ความเชี่ยวชาญเฉพาะทางพนักงาน [RPG EDITION] v3.0</p>
+          <p class="text-xs md:text-sm text-indigo-300 font-bold uppercase tracking-widest">Cyberpunk Competency Deckbuilder v4.0</p>
         </div>
 
-        <div class="space-y-4 pt-4">
-          <!-- ปุ่มล็อกอินด้วย Google Workspace -->
+        <div class="space-y-4 pt-4 max-w-md mx-auto">
+          <!-- ล็อกอินด้วย Google Workspace -->
           <button @click="loginWithGoogle" :disabled="authLoading"
-                  class="w-full bg-brand-accent hover:bg-brand-accentHover active:scale-[0.98] py-4 rounded-2xl font-bold transition-all flex items-center justify-center space-x-3 shadow-lg shadow-brand-accent/35 text-sm md:text-base">
+                  class="cyber-btn w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-[0.98] py-4 rounded-2xl font-bold transition-all flex items-center justify-center space-x-3 shadow-lg shadow-indigo-500/25 text-sm md:text-base text-white">
             <i class="fa-brands fa-google text-lg"></i>
-            <span>{{ authLoading ? 'กำลังตรวจสอบสิทธิ์...' : 'ล็อกอินด้วยบัญชี Google บริษัท' }}</span>
+            <span>{{ authLoading ? 'กำลังดาวน์โหลดโมดูล...' : 'ล็อกอินเข้าประเมินด้วยบัญชี Google' }}</span>
           </button>
 
-          <!-- 👤 ฟอร์มเข้าสู่ระบบด่วนด้วยชื่อเล่น (Guest Mode with Custom Name) -->
+          <!-- ล็อกอินด้วยชื่อเล่นด่วน (เพื่อเลี่ยงปัญหา Firebase Domain ในหน้าจำลอง) -->
           <div class="border-t border-slate-800/80 pt-6 mt-6 space-y-3">
             <div class="text-left">
-              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                <i class="fa-solid fa-user-ninja text-brand-accent mr-1"></i> เข้าเล่นทันทีด้วยชื่อของคุณ (ไม่ต้องผ่านบัญชี Google)
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 text-center">
+                <i class="fa-solid fa-user-ninja text-brand-accent mr-1"></i> เข้าทดสอบด่วนด้วยชื่อสังกัด / นามสมมติ
               </label>
               <div class="flex space-x-2">
-                <input type="text" v-model="guestNameInput" placeholder="ระบุชื่อเล่นหรือนามสมมติ..." 
-                       class="flex-1 bg-slate-900/90 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-accent transition-all">
+                <input type="text" v-model="guestNameInput" placeholder="ระบุชื่อเล่นหรือฝ่ายงานของคุณ..." 
+                       class="flex-1 bg-slate-950 border border-slate-800 focus:border-brand-accent rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none transition-all">
                 <button @click="loginAnonymously" :disabled="authLoading"
-                        class="bg-slate-800 hover:bg-slate-750 active:scale-[0.98] px-5 rounded-xl font-bold transition-all text-xs border border-slate-700/70 text-slate-200">
-                  เข้าสู่ระบบ <i class="fa-solid fa-circle-play text-brand-accent ml-1.5"></i>
+                        class="bg-slate-900 hover:bg-slate-850 active:scale-[0.98] px-5 rounded-xl font-bold transition-all text-xs border border-slate-800 text-indigo-300 flex items-center space-x-1">
+                  <span>ลุยด่วน</span>
+                  <i class="fa-solid fa-angle-right"></i>
                 </button>
               </div>
             </div>
           </div>
         </div>
-
-        <p class="text-xs text-slate-500">จำกัดสิทธิ์การเก็บประเมินประวัติเฉพาะบุคลากรของบริษัทเท่านั้น</p>
       </div>
 
-      <!-- 2. หน้ายินดีต้อนรับและการสับคัดกรองแผนก (Lobby & Profile Setting) -->
+      <!-- 2. หน้ายินดีต้อนรับและการเลือกสายอาชีพ (Job Class Selector) -->
       <div v-if="view === 'intro'" class="space-y-6 py-2">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-4">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-slate-850 border border-slate-800 flex items-center justify-center text-brand-accent">
-              <i class="fa-solid fa-user-gear text-lg"></i>
+            <div class="w-10 h-10 rounded-full bg-slate-900 border border-brand-accent/30 flex items-center justify-center text-brand-accent">
+              <i class="fa-solid fa-user-tie text-lg"></i>
             </div>
             <div>
-              <p class="text-xs text-slate-500">บัญชีผู้ประเมิน</p>
-              <p class="text-sm font-bold text-slate-200 truncate max-w-[200px]">{{ userDisplayName }}</p>
+              <p class="text-xs text-slate-500 font-bold uppercase">บัญชีผู้ประเมิน</p>
+              <p class="text-sm font-black text-indigo-200 truncate max-w-[200px]">{{ userDisplayName }}</p>
             </div>
           </div>
-          <button @click="logout" class="text-xs text-slate-500 hover:text-rose-400 transition flex items-center">
+          <button @click="logout" class="text-xs text-slate-400 hover:text-rose-400 transition flex items-center font-bold">
             <span>ออกจากระบบ</span>
             <i class="fa-solid fa-arrow-right-from-bracket ml-1.5"></i>
           </button>
         </div>
 
-        <!-- แท็บเลือกแผนกงานจริง (Department Selector) -->
+        <!-- การเลือกคลาสซึ่งจะกำหนด Passive และการ์ดเด็คเริ่มต้น -->
         <div class="space-y-3">
-          <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center">
-            <i class="fa-solid fa-building-user mr-2 text-brand-accent"></i> 1. ระบุฝ่ายงานสังกัดของคุณเพื่อรับพลังพิเศษ (Passive Buff):
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center">
+            <i class="fa-solid fa-hat-wizard mr-2 text-brand-accent"></i> 1. เลือกคลาสทักษะสายตรง ( determine Starting Deck & Buff ):
           </h3>
           <div class="grid grid-cols-2 gap-3">
             <button @click="setDepartment('it')" 
                     :class="['p-3 rounded-xl border text-xs font-bold transition-all text-left flex items-center space-x-3', 
-                             selectedDept === 'it' ? 'bg-indigo-500/10 border-indigo-500 text-indigo-300' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
-              <i class="fa-solid fa-laptop-code text-lg"></i>
+                             selectedDept === 'it' ? 'bg-indigo-500/10 border-indigo-500 text-indigo-300 shadow-[0_0_15px_rgba(99,102,241,0.15)]' : 'bg-slate-950 border-slate-900 text-slate-500']">
+              <i class="fa-solid fa-laptop-code text-xl text-purple-400"></i>
               <div>
-                <span class="block">ฝ่ายเทคโนโลยี/IT</span>
-                <span class="block text-[9px] text-slate-500">แต้มตัวคูณนวัตกรรม x3</span>
+                <span class="block text-slate-200">IT Innovator</span>
+                <span class="block text-[9px] text-purple-400 font-normal">พาสซีฟ: นวัตกรรม X3 | การ์ดคลาส IT เยอะ</span>
               </div>
             </button>
             <button @click="setDepartment('hr')" 
                     :class="['p-3 rounded-xl border text-xs font-bold transition-all text-left flex items-center space-x-3', 
-                             selectedDept === 'hr' ? 'bg-indigo-500/10 border-indigo-500 text-indigo-300' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
-              <i class="fa-solid fa-people-group text-lg"></i>
+                             selectedDept === 'hr' ? 'bg-pink-500/10 border-pink-500 text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.15)]' : 'bg-slate-950 border-slate-900 text-slate-500']">
+              <i class="fa-solid fa-people-group text-xl text-pink-400"></i>
               <div>
-                <span class="block">ฝ่ายทรัพยากรบุคคล/HR</span>
-                <span class="block text-[9px] text-slate-500">แต้มตัวคูณพลังคน x3</span>
+                <span class="block text-slate-200">HR Director</span>
+                <span class="block text-[9px] text-pink-400 font-normal">พาสซีฟ: พลังคน X3 | พลังฟื้นฟู Talent สูง</span>
               </div>
             </button>
             <button @click="setDepartment('finance')" 
                     :class="['p-3 rounded-xl border text-xs font-bold transition-all text-left flex items-center space-x-3', 
-                             selectedDept === 'finance' ? 'bg-indigo-500/10 border-indigo-500 text-indigo-300' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
-              <i class="fa-solid fa-hand-holding-dollar text-lg"></i>
+                             selectedDept === 'finance' ? 'bg-emerald-500/10 border-emerald-500 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)]' : 'bg-slate-950 border-slate-900 text-slate-500']">
+              <i class="fa-solid fa-wallet text-xl text-emerald-400"></i>
               <div>
-                <span class="block">ฝ่ายการเงิน/Finance</span>
-                <span class="block text-[9px] text-slate-500">แต้มตัวคูณเงินทุน x3</span>
+                <span class="block text-slate-200">Finance Guru</span>
+                <span class="block text-[9px] text-emerald-400 font-normal">พาสซีฟ: เงินทุน X3 | ฟื้นงบประมาณง่าย</span>
               </div>
             </button>
             <button @click="setDepartment('marketing')" 
                     :class="['p-3 rounded-xl border text-xs font-bold transition-all text-left flex items-center space-x-3', 
-                             selectedDept === 'marketing' ? 'bg-indigo-500/10 border-indigo-500 text-indigo-300' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
-              <i class="fa-solid fa-bullhorn text-lg"></i>
+                             selectedDept === 'marketing' ? 'bg-amber-500/10 border-amber-500 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.15)]' : 'bg-slate-950 border-slate-900 text-slate-500']">
+              <i class="fa-solid fa-bullhorn text-xl text-amber-400"></i>
               <div>
-                <span class="block">ฝ่ายการตลาด/PR</span>
-                <span class="block text-[9px] text-slate-500">แต้มตัวคูณชื่อเสียง x3</span>
+                <span class="block text-slate-200">PR Brandmaster</span>
+                <span class="block text-[9px] text-amber-400 font-normal">พาสซีฟ: ชื่อเสียง X3 | ตะลุยโบนัสแต้มชื่อเสียง</span>
               </div>
             </button>
           </div>
         </div>
 
-        <!-- แท็บเลือกระดับด่าน (Difficulty Setting) -->
+        <!-- เลือกระดับความยากจำลอง -->
         <div class="space-y-3">
-          <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center">
-            <i class="fa-solid fa-gauge-high mr-2 text-brand-accent"></i> 2. ระดับความยากการเผชิญวิกฤต:
+          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center">
+            <i class="fa-solid fa-shield-virus mr-2 text-brand-accent"></i> 2. ปรับสภาพสภาวะวิกฤตความยาก:
           </h3>
           <div class="grid grid-cols-3 gap-3">
             <button @click="setDifficulty('normal')" 
                     :class="['p-3 rounded-xl border text-xs font-bold transition-all', 
-                             difficulty === 'normal' ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
+                             difficulty === 'normal' ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.15)]' : 'bg-slate-950 border-slate-900 text-slate-500']">
               Normal
             </button>
             <button @click="setDifficulty('hard')" 
                     :class="['p-3 rounded-xl border text-xs font-bold transition-all', 
-                             difficulty === 'hard' ? 'bg-amber-500/10 border-amber-500 text-amber-400' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
+                             difficulty === 'hard' ? 'bg-amber-500/10 border-amber-500 text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.15)]' : 'bg-slate-950 border-slate-900 text-slate-500']">
               Hard
             </button>
             <button @click="setDifficulty('expert')" 
                     :class="['p-3 rounded-xl border text-xs font-bold transition-all', 
-                             difficulty === 'expert' ? 'bg-rose-500/10 border-rose-500 text-rose-400' : 'bg-slate-900/50 border-slate-800 text-slate-500']">
+                             difficulty === 'expert' ? 'bg-rose-500/10 border-rose-500 text-rose-400 shadow-[0_0_10px_rgba(239,68,68,0.15)]' : 'bg-slate-950 border-slate-900 text-slate-500']">
               Expert
             </button>
           </div>
         </div>
 
         <button @click="startGame" 
-                class="w-full bg-brand-accent hover:bg-brand-accentHover text-white py-4 rounded-2xl font-bold text-lg transition-all shadow-lg active:scale-[0.98]">
-          เข้าสู่บริษัทและสวมบทบาท CEO <i class="fa-solid fa-circle-play ml-2"></i>
+                class="cyber-btn w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white py-4 rounded-2xl font-black text-lg transition-all shadow-[0_0_20px_rgba(99,102,241,0.4)] tracking-widest uppercase">
+          จัดสำรับสำรวจไตรมาส <i class="fa-solid fa-play ml-2"></i>
         </button>
       </div>
 
-      <!-- 3. หน้ากระดานแสดงผลแบบ RPG 2D (RPG Gameplay Dashboard) -->
+      <!-- 3. หน้าจอเล่นเกมส์ (Roguelike Deckbuilder Screen) -->
       <div v-if="view === 'play'" class="space-y-4">
-        <!-- แถบดัชนีภาพรวมองค์กรระดับทักษะ -->
-        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-          <div class="space-y-1">
-            <span class="text-xs text-slate-400 block font-bold">
-              ภารกิจ: เดินคุยกับ <b class="text-amber-400">{{ getRemainingTasksCount() }}</b> แผนกเพื่อแก้ไขสถานการณ์
-            </span>
+        
+        <!-- แถบบอสมอนิเตอร์วิกฤตการณ์ (Quarterly Crisis Monitor) -->
+        <div class="bg-gradient-to-r from-rose-950/40 via-slate-950 to-indigo-950/40 p-4 rounded-2xl border border-rose-900/30 relative overflow-hidden">
+          <div class="absolute -top-12 -right-12 w-24 h-24 bg-rose-500/10 blur-[40px] rounded-full"></div>
+          
+          <div class="flex justify-between items-start mb-2">
+            <div class="space-y-0.5">
+              <span class="text-[9px] bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full font-black uppercase tracking-wider">
+                ไตรมาสที่ {{ currentQuarter }} / 4
+              </span>
+              <h2 class="text-xs md:text-sm font-black text-slate-200 mt-1 flex items-center">
+                <i class="fa-solid fa-radiation mr-1.5 text-rose-500 animate-spin" style="animation-duration: 4s"></i>
+                บอสวิกฤต: {{ activeCrisis.title }}
+              </h2>
+            </div>
+            <div class="text-right">
+              <span class="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">ความรุนแรงของวิกฤต</span>
+              <span class="text-sm md:text-base font-black text-rose-400">{{ activeCrisis.hp }} / {{ activeCrisis.maxHp }} Impact</span>
+            </div>
           </div>
-          <div class="text-right">
-            <span class="text-[10px] text-slate-500 block uppercase font-bold tracking-wider">มูลค่าประเมินบริษัท</span>
-            <span class="text-lg md:text-xl font-black text-amber-400 neon-glow">฿{{ formatValuation(calculateValuation()) }}</span>
+
+          <!-- แถบพลังการเคลียร์วิกฤต (Crisis Resolve Progress) -->
+          <div class="h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-900">
+            <div class="h-full bg-gradient-to-r from-rose-500 to-amber-500 transition-all duration-300" :style="{ width: (activeCrisis.hp / activeCrisis.maxHp) * 100 + '%' }"></div>
           </div>
+          <p class="text-[10px] text-slate-400 italic mt-2">
+            ⚠️ แอฟเฟกต์สิ้นเทิร์น: {{ activeCrisis.damageDesc }}
+          </p>
         </div>
 
-        <!-- แผงประเมินทรัพยากรหลักทั้ง 4 ด้าน (Resources Grid) -->
+        <!-- แผงประเมินทรัพยากรหลักทั้ง 4 ด้าน (Resources HUD) -->
         <div class="grid grid-cols-4 gap-2">
           <!-- Budget -->
-          <div class="bg-slate-900/85 p-2 rounded-xl border border-slate-800/80 flex flex-col justify-between">
-            <span class="text-[9px] font-bold text-slate-400 uppercase">งบประมาณ</span>
-            <span :class="['text-[11px] md:text-xs font-black', resources.budget <= 25000 ? 'text-rose-400 animate-pulse' : 'text-emerald-400']">
+          <div class="bg-slate-950 p-2 rounded-xl border border-slate-900 flex flex-col justify-between">
+            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">งบประมาณ</span>
+            <span :class="['text-xs font-black', resources.budget <= 25000 ? 'text-rose-400 animate-pulse' : 'text-emerald-400']">
               ฿{{ formatValuation(resources.budget) }}
             </span>
-            <div class="h-1 bg-slate-950 rounded-full overflow-hidden mt-1">
-              <div class="h-full bg-emerald-500" :style="{ width: getPercentage(resources.budget, 200000) + '%' }"></div>
+            <div class="h-1 bg-slate-900 rounded-full overflow-hidden mt-1">
+              <div class="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" :style="{ width: getPercentage(resources.budget, 200000) + '%' }"></div>
             </div>
           </div>
 
           <!-- Talent -->
-          <div class="bg-slate-900/85 p-2 rounded-xl border border-slate-800/80 flex flex-col justify-between">
-            <span class="text-[9px] font-bold text-slate-400 uppercase">พลังทีมงาน</span>
-            <span :class="['text-[11px] md:text-xs font-black', resources.talent <= 25 ? 'text-rose-400 animate-pulse' : 'text-violet-400']">
+          <div class="bg-slate-950 p-2 rounded-xl border border-slate-900 flex flex-col justify-between">
+            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">พลังทีมงาน</span>
+            <span :class="['text-xs font-black', resources.talent <= 25 ? 'text-rose-400 animate-pulse' : 'text-violet-400']">
               {{ resources.talent }}%
             </span>
-            <div class="h-1 bg-slate-950 rounded-full overflow-hidden mt-1">
-              <div class="h-full bg-violet-500" :style="{ width: resources.talent + '%' }"></div>
+            <div class="h-1 bg-slate-900 rounded-full overflow-hidden mt-1">
+              <div class="h-full bg-violet-500 shadow-[0_0_10px_rgba(139,92,246,0.5)]" :style="{ width: resources.talent + '%' }"></div>
             </div>
           </div>
 
           <!-- Innovation -->
-          <div class="bg-slate-900/85 p-2 rounded-xl border border-slate-800/80 flex flex-col justify-between">
-            <span class="text-[9px] font-bold text-slate-400 uppercase">นวัตกรรม</span>
-            <span :class="['text-[11px] md:text-xs font-black', resources.innovation <= 25 ? 'text-rose-400 animate-pulse' : 'text-cyan-400']">
+          <div class="bg-slate-950 p-2 rounded-xl border border-slate-900 flex flex-col justify-between">
+            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">นวัตกรรม</span>
+            <span :class="['text-xs font-black', resources.innovation <= 25 ? 'text-rose-400 animate-pulse' : 'text-cyan-400']">
               {{ resources.innovation }}%
             </span>
-            <div class="h-1 bg-slate-950 rounded-full overflow-hidden mt-1">
-              <div class="h-full bg-cyan-500" :style="{ width: resources.innovation + '%' }"></div>
+            <div class="h-1 bg-slate-900 rounded-full overflow-hidden mt-1">
+              <div class="h-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)]" :style="{ width: resources.innovation + '%' }"></div>
             </div>
           </div>
 
           <!-- Reputation -->
-          <div class="bg-slate-900/85 p-2 rounded-xl border border-slate-800/80 flex flex-col justify-between">
-            <span class="text-[9px] font-bold text-slate-400 uppercase">ชื่อเสียง</span>
-            <span :class="['text-[11px] md:text-xs font-black', resources.reputation <= 25 ? 'text-rose-400 animate-pulse' : 'text-amber-400']">
+          <div class="bg-slate-950 p-2 rounded-xl border border-slate-900 flex flex-col justify-between">
+            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">ชื่อเสียง</span>
+            <span :class="['text-xs font-black', resources.reputation <= 25 ? 'text-rose-400 animate-pulse' : 'text-amber-400']">
               {{ resources.reputation }}%
             </span>
-            <div class="h-1 bg-slate-950 rounded-full overflow-hidden mt-1">
-              <div class="h-full bg-amber-500" :style="{ width: resources.reputation + '%' }"></div>
+            <div class="h-1 bg-slate-900 rounded-full overflow-hidden mt-1">
+              <div class="h-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]" :style="{ width: resources.reputation + '%' }"></div>
             </div>
           </div>
         </div>
 
-        <!-- 🕹️ จอแสดงผล RPG Canvas 2D Top-down Engine -->
-        <div class="relative bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden flex items-center justify-center flex-col p-1">
-          <div class="absolute top-2 left-2 z-10 bg-slate-900/90 border border-slate-700/50 rounded-lg px-2 py-1 text-[9px] text-indigo-300">
-            <i class="fa-solid fa-arrows-to-eye"></i> บังคับ: ลูกศร / WASD | <i class="fa-solid fa-mobile-screen-button"></i> ปุ่มกดบนจอ
-          </div>
-
-          <div class="absolute top-2 right-2 z-10 bg-emerald-950/90 border border-emerald-500/50 rounded-lg px-2 py-1 text-[9px] text-emerald-300 animate-pulse">
-            <i class="fa-solid fa-coins"></i> คืนแต้ม AP: {{ actionPoints }} AP
-          </div>
-
-          <!-- ตัวคัดเกรดขนาดแคนวาสสำหรับการวาดจริง -->
-          <canvas id="rpgCanvas" width="480" height="320" class="w-full h-[280px] md:h-[320px] bg-slate-950 rounded-xl"></canvas>
-        </div>
-
-        <!-- 📱 ระบบควบคุมแบบ D-pad จำลองสำหรับการพกพาทัชสกรีนมือถือ (Virtual Controller) -->
-        <div class="flex flex-col items-center justify-center space-y-1 py-1">
-          <button @mousedown="movePlayer('up')" @touchstart.prevent="movePlayer('up')" class="w-12 h-10 bg-slate-800/90 hover:bg-slate-700 rounded-xl border border-slate-700 active:scale-90 transition-all flex items-center justify-center">
-            <i class="fa-solid fa-chevron-up text-lg text-indigo-400"></i>
-          </button>
-          <div class="flex space-x-6">
-            <button @mousedown="movePlayer('left')" @touchstart.prevent="movePlayer('left')" class="w-12 h-10 bg-slate-800/90 hover:bg-slate-700 rounded-xl border border-slate-700 active:scale-90 transition-all flex items-center justify-center">
-              <i class="fa-solid fa-chevron-left text-lg text-indigo-400"></i>
-            </button>
-            <div class="w-12 h-10 bg-indigo-950/30 rounded-xl flex items-center justify-center text-[10px] font-bold text-indigo-400">D-PAD</div>
-            <button @mousedown="movePlayer('right')" @touchstart.prevent="movePlayer('right')" class="w-12 h-10 bg-slate-800/90 hover:bg-slate-700 rounded-xl border border-slate-700 active:scale-90 transition-all flex items-center justify-center">
-              <i class="fa-solid fa-chevron-right text-lg text-indigo-400"></i>
-            </button>
-          </div>
-          <button @mousedown="movePlayer('down')" @touchstart.prevent="movePlayer('down')" class="w-12 h-10 bg-slate-800/90 hover:bg-slate-700 rounded-xl border border-slate-700 active:scale-90 transition-all flex items-center justify-center">
-            <i class="fa-solid fa-chevron-down text-lg text-indigo-400"></i>
-          </button>
-        </div>
-
-        <!-- ดอกเบี้ยหนี้สะสมแจ้งเตือน -->
-        <div v-if="resources.debt > 0" class="bg-rose-950/20 border border-rose-500/20 rounded-xl p-2.5 flex justify-between items-center text-[10px] text-rose-300">
-          <span><i class="fa-solid fa-triangle-exclamation mr-1 animate-pulse"></i> หนี้สะสมพยุงกิจการ: <b>฿{{ formatValuation(resources.debt) }}</b></span>
-          <span>ดอกเบี้ยจ่ายตอบคำถาม: <b>฿{{ formatValuation(resources.debt * 0.15) }} / โจทย์</b></span>
-        </div>
-      </div>
-
-      <!-- 🎮 กล่องสถานการณ์วิกฤตที่ทริกเกอร์ขึ้นมาเมื่อตัวละครชน NPC หัวหน้าแผนก (Crisis Encounter Modal) -->
-      <div v-if="view === 'encounter'" class="space-y-4">
-        <div class="flex items-center space-x-2 text-xs font-bold text-rose-400 uppercase tracking-widest animate-pulse border-b border-slate-800 pb-2">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-          <span>วิกฤตแผนก {{ getDeptName(activeEncounterDept) }}</span>
-        </div>
-
-        <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
-          <h2 class="text-sm md:text-base font-bold leading-relaxed text-slate-100">
-            {{ activeCrisis.event }}
-          </h2>
-        </div>
-
-        <!-- แผนทางเลือกเชิงกลยุทธ์ -->
-        <div class="space-y-2">
-          <button v-for="(opt, idx) in activeCrisis.opts" :key="idx"
-                  @click="makeDecisionInEncounter(opt)"
-                  class="w-full text-left p-3.5 rounded-xl bg-slate-850 hover:bg-slate-800 border border-slate-700/60 active:scale-[0.99] transition-all flex justify-between items-center group">
-            <div class="flex-1 pr-2">
-              <p class="text-[10px] font-bold text-indigo-400 group-hover:text-brand-accent transition-colors mb-0.5">ทางเลือกที่ {{ idx + 1 }}</p>
-              <p class="text-xs md:text-sm text-slate-200 font-medium group-hover:text-white">{{ opt.text }}</p>
+        <!-- บรรทัดสรุปพลังงานและการประคับประคองเทิร์น (Turn Actions HUD) -->
+        <div class="flex justify-between items-center bg-slate-950 px-3 py-2.5 rounded-xl border border-slate-900">
+          <div class="flex items-center space-x-2">
+            <span class="text-xs text-slate-400 font-bold">เทิร์นพลังงาน:</span>
+            <div class="flex space-x-1">
+              <i v-for="n in 3" :key="n" 
+                 :class="['fa-solid fa-bolt text-xs transition-colors', n <= actionPoints ? 'text-amber-400 drop-shadow-[0_0_5px_rgba(245,158,11,0.6)]' : 'text-slate-700']"></i>
             </div>
-            <i class="fa-solid fa-chevron-right text-slate-600 group-hover:text-brand-accent transition-colors"></i>
+          </div>
+          <div class="flex items-center space-x-2 text-[10px] text-slate-400">
+            <span>สำรับการ์ด: <b class="text-indigo-400">{{ deck.length }}</b> ใบ</span>
+            <span>|</span>
+            <span>ที่ใช้แล้ว: <b class="text-purple-400">{{ discardPile.length }}</b> ใบ</span>
+          </div>
+          <button @click="endTurn" 
+                  class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-black text-xs px-4 py-1.5 rounded-lg transition border border-indigo-400/30 shadow-[0_0_10px_rgba(99,102,241,0.3)]">
+            จบเทิร์น <i class="fa-solid fa-forward-step ml-1"></i>
           </button>
         </div>
 
-        <!-- ทางเลือกรองรับใช้แต้ม AP ในกรณีฉุกเฉินเพื่อข้ามปัญหา -->
-        <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
-          <span class="text-slate-400">ใช้ 1 AP เพื่อทำการฝึกอบรมพยุงสถานการณ์ไม่ให้แย่ลง?</span>
-          <button @click="skipCrisisWithAP" :disabled="actionPoints < 1"
-                  class="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-35 text-white px-3 py-1.5 rounded-lg font-bold text-xs transition">
-            ใช้ 1 AP จัดการ
+        <!-- 🃏 พื้นที่สุ่มและสแตนบายการ์ดบนมือพนักงาน (Player's Hand Arena) -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center">
+              <i class="fa-solid fa-hand-holding-hand mr-1.5 text-indigo-400"></i> เลือกเล่นการ์ดบนมือเพื่อคลี่คลายปัญหา (ใช้แต้ม AP):
+            </h3>
+            <span class="text-[9px] text-indigo-300 font-bold">*คลิกการ์ดเพื่อรันแผนงาน</span>
+          </div>
+
+          <!-- ตารางจัดเรียงการ์ดบนมือแบบเลื่อนปัดนุ่มนวล -->
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-2.5 pt-1">
+            <div v-for="(card, idx) in hand" :key="idx" 
+                 @click="playCard(card, idx)"
+                 :class="['rounded-xl p-3 flex flex-col justify-between cursor-pointer card-hover select-none min-h-[140px] text-left relative overflow-hidden bg-slate-900 border transition-all duration-300', 
+                          card.dept === 'it' ? 'card-neon-it' : 
+                          card.dept === 'hr' ? 'card-neon-hr' : 
+                          card.dept === 'finance' ? 'card-neon-finance' : 'card-neon-marketing',
+                          actionPoints < card.ap ? 'opacity-40 grayscale cursor-not-allowed' : '']">
+              
+              <!-- ลวดลายแสงด้านหลังการ์ด -->
+              <div class="absolute -bottom-8 -right-8 w-16 h-16 opacity-10 rounded-full"
+                   :class="card.dept === 'it' ? 'bg-purple-400' : card.dept === 'hr' ? 'bg-pink-400' : card.dept === 'finance' ? 'bg-emerald-400' : 'bg-amber-400'"></div>
+              
+              <div>
+                <div class="flex justify-between items-start border-b border-slate-800 pb-1.5 mb-1.5">
+                  <span class="text-[9px] font-black uppercase tracking-wider" 
+                        :class="card.dept === 'it' ? 'text-purple-400' : card.dept === 'hr' ? 'text-pink-400' : card.dept === 'finance' ? 'text-emerald-400' : 'text-amber-400'">
+                    {{ card.dept.toUpperCase() }}
+                  </span>
+                  <span class="text-[10px] font-black bg-slate-950/80 px-1.5 py-0.5 rounded text-amber-400 flex items-center">
+                    {{ card.ap }} <i class="fa-solid fa-bolt ml-0.5 text-[8px]"></i>
+                  </span>
+                </div>
+                <h4 class="text-xs font-bold text-slate-100 mb-1 leading-tight">{{ card.name }}</h4>
+                <p class="text-[9px] text-slate-400 leading-snug">{{ card.desc }}</p>
+              </div>
+
+              <!-- ดัชนีที่ส่งผลลัพธ์ของพลังงาน -->
+              <div class="border-t border-slate-800/80 pt-1.5 mt-2 flex justify-between items-center text-[9px] font-bold">
+                <span class="text-emerald-400">{{ card.costDesc }}</span>
+                <span class="text-indigo-300">{{ card.effectDesc }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🏦 ระบบกู้เงินพิเศษพยุงฐานวิกฤต (Emergency Rescue Option) -->
+        <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-900 flex justify-between items-center text-xs">
+          <div class="space-y-0.5">
+            <span class="font-bold text-rose-300 text-[11px] block"><i class="fa-solid fa-building-circle-exclamation mr-1 animate-pulse"></i> แผนฉุกเฉิน: จัดกู้เงินด่วนกู้ชีพบริษัท</span>
+            <span class="text-[9px] text-slate-500">รับทันที ฿50,000 พ่วงหนี้สินที่จะลดคะแนนตอนจบไตรมาส</span>
+          </div>
+          <button @click="executeRescueLoan" :disabled="resources.budget > 40000"
+                  class="bg-rose-950/30 hover:bg-rose-900/40 border border-rose-500/30 text-rose-300 font-bold px-4 py-2 rounded-xl text-xs transition active:scale-95 disabled:opacity-30">
+            ขอเงินกู้ด่วน
           </button>
         </div>
+
       </div>
 
-      <!-- 4. หน้าจอวิเคราะห์เกรดผู้นำและบอร์ดคะแนนแยกแผนก (Score & Realtime Leaderboard) -->
+      <!-- 4. หน้าจอวิเคราะห์เกรดผู้นำและบอร์ดคะแนนแยกแผนก (Result View & Leaderboard) -->
       <div v-if="view === 'result'" class="space-y-5 text-center py-4">
         
         <div v-if="gameResult === 'victory'" class="space-y-2">
-          <div class="w-14 h-14 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-400 border border-emerald-500/20 animate-bounce">
-            <i class="fa-solid fa-award text-3xl"></i>
+          <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-400 border border-emerald-500/20 animate-bounce shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+            <i class="fa-solid fa-trophy text-3xl"></i>
           </div>
-          <h2 class="text-xl font-black text-emerald-400">บริหารเสร็จสิ้นลุล่วง!</h2>
-          <p class="text-xs text-slate-400">ฝ่ายงานสังกัด: {{ getDeptName(selectedDept) }} | ด่าน: {{ difficulty.toUpperCase() }}</p>
+          <h2 class="text-2xl font-black text-emerald-400 neon-glow">ปิดงบปีและเอาชนะทุกวิกฤต!</h2>
+          <p class="text-xs text-slate-400">คลาสประเมินสังกัด: {{ getDeptName(selectedDept) }} | ด่าน: {{ difficulty.toUpperCase() }}</p>
         </div>
 
         <div v-if="gameResult === 'bankrupt'" class="space-y-2">
-          <div class="w-14 h-14 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto text-rose-400 border border-rose-500/20">
-            <i class="fa-solid fa-skull-crossbones text-3xl"></i>
+          <div class="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto text-rose-400 border border-rose-500/20 shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+            <i class="fa-solid fa-handshake-slash text-3xl animate-pulse"></i>
           </div>
-          <h2 class="text-xl font-black text-rose-400">ล้มละลาย / องค์กรไม่ผ่านประเมิน!</h2>
-          <p class="text-xs text-slate-400">ค่าสถานะใดสถานะหนึ่งตกลงต่ำแตะ 0 ก่อนเคลียร์งานเสร็จสิ้นครบถ้วน</p>
+          <h2 class="text-2xl font-black text-rose-400 neon-glow">กิจการล้มละลาย / ต่ำกว่าเกณฑ์!</h2>
+          <p class="text-xs text-slate-400">ดัชนีทรัพยากรหลักลดต่ำจนหมดสภาพระหว่างควบคุมงบรายไตรมาส</p>
         </div>
 
         <!-- แผงแสดงคะแนนประเมิน -->
-        <div class="bg-slate-900/60 py-4 px-3 rounded-2xl border border-slate-800">
-          <span class="text-[9px] text-slate-500 uppercase tracking-widest font-black block">มูลค่าประเมินบริษัทสะสม</span>
-          <span class="text-3xl md:text-4xl font-black text-amber-400 my-1 block neon-glow">฿{{ formatValuation(score) }}</span>
-          <span class="text-xs px-3 py-1 bg-slate-850 text-slate-300 rounded-full border border-slate-800 inline-block mt-1">
-            ทักษะผู้นำ: {{ getBadge() }}
+        <div class="bg-slate-950/60 py-5 px-3 rounded-2xl border border-slate-900 shadow-inner">
+          <span class="text-[9px] text-indigo-400 uppercase tracking-widest font-black block">มูลค่าประเมินบริษัทหลังปิดงบ</span>
+          <span class="text-3xl md:text-5xl font-black text-amber-400 my-1 block neon-glow">฿{{ formatValuation(score) }}</span>
+          <span class="text-xs px-3 py-1 bg-slate-900 text-slate-300 rounded-full border border-slate-800 inline-block mt-1">
+            เกรดบริหาร: {{ getBadge() }}
           </span>
         </div>
 
-        <!-- 📈 กราฟเส้นสรุปประวัติประเมินคะแนนรายไตรมาส (Live Valuation History Line Chart) -->
-        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-850">
+        <!-- 📈 กราฟเส้นสรุปประวัติประเมินคะแนนรายไตรมาส -->
+        <div class="bg-slate-950 p-4 rounded-2xl border border-slate-900">
           <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-center">
-            <i class="fa-solid fa-chart-line text-indigo-400 mr-2"></i> กราฟประวัติการเติบโตมูลค่าแบรนด์ (Valuation History)
+            <i class="fa-solid fa-chart-line text-indigo-400 mr-2"></i> กราฟทิศทางมูลค่าบริษัทรายไตรมาส
           </h3>
           <div class="relative w-full h-[160px]">
             <canvas id="valuationTrendChart"></canvas>
@@ -406,21 +451,21 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
         <!-- การส่งบันทึกผลงาน -->
         <div v-if="!scoreSubmitted" class="space-y-3">
           <button @click="submitScoreToFirebase" :disabled="submitting"
-                  class="w-full bg-brand-accent hover:bg-brand-accentHover text-white py-4 rounded-2xl font-bold transition shadow-lg active:scale-[0.98] disabled:bg-slate-700 flex items-center justify-center space-x-2">
+                  class="cyber-btn w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white py-4 rounded-2xl font-bold transition shadow-lg active:scale-[0.98] disabled:bg-slate-700 flex items-center justify-center space-x-2">
             <i v-if="submitting" class="fa-solid fa-circle-notch animate-spin"></i>
             <i v-else class="fa-solid fa-cloud-arrow-up"></i>
-            <span>{{ submitting ? 'กำลังบันทึกคะแนน...' : 'ส่งผลงานขึ้นทำเนียบลีดเดอร์บอร์ดบริษัท' }}</span>
+            <span>{{ submitting ? 'กำลังบันทึกคะแนน...' : 'ส่งคะแนนเข้าทำเนียบของบริษัท' }}</span>
           </button>
-          <button @click="resetGame" class="text-sm text-slate-400 hover:text-slate-300 transition block mx-auto">
+          <button @click="resetGame" class="text-sm text-slate-500 hover:text-slate-300 transition block mx-auto font-bold">
             <i class="fa-solid fa-arrow-rotate-left mr-1"></i> เริ่มใหม่อีกครั้ง
           </button>
         </div>
 
-        <!-- 🏆 บอร์ดจัดลำดับแบบฟิลเตอร์เลือกแผนกเรียลไทม์ (Live Departmental Leaderboard) -->
+        <!-- 🏆 บอร์ดจัดลำดับแบบฟิลเตอร์เลือกแผนกเรียลไทม์ -->
         <div v-if="scoreSubmitted" class="space-y-4 pt-4 border-t border-slate-800 text-left">
           <div class="flex justify-between items-center">
             <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center">
-              <i class="fa-solid fa-users mr-2 text-amber-400"></i> ทำเนียบยอดฝีมือแยกตามทักษะสังกัด
+              <i class="fa-solid fa-users mr-2 text-amber-400"></i> ทำเนียบคะแนนวิเคราะห์จำลองแยกแผนก
             </h3>
             <span class="flex h-2 w-2 relative">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -428,7 +473,7 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
             </span>
           </div>
 
-          <!-- แผงแท็บกดสับดูอันดับคะแนนเฉพาะแผนกเชิงเปรียบเทียบ -->
+          <!-- แท็บฟิลเตอร์แผนก -->
           <div class="flex space-x-1.5 overflow-x-auto pb-2 border-b border-slate-900">
             <button @click="boardTab = 'all'" :class="['px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap', boardTab === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400']">ทั้งหมด</button>
             <button @click="boardTab = 'it'" :class="['px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap', boardTab === 'it' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-slate-400']">IT</button>
@@ -440,30 +485,30 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
           <div class="space-y-2 max-h-[180px] overflow-y-auto pr-1">
             <div v-for="(row, idx) in getFilteredLeaderboard()" :key="idx" 
                  :class="['flex justify-between items-center p-2.5 rounded-xl border transition-all text-xs md:text-sm', 
-                          isCurrentUser(row.user) ? 'bg-brand-accent/15 border-brand-accent/60' : 'bg-slate-900/40 border-slate-800/80']">
+                          isCurrentUser(row.user) ? 'bg-brand-accent/15 border-brand-accent/60 shadow-[0_0_10px_rgba(99,102,241,0.1)]' : 'bg-slate-950 border-slate-900']">
               <div class="flex items-center space-x-3">
                 <span :class="['w-5 h-5 rounded-lg flex items-center justify-center text-[10px] font-black shadow-inner',
-                              idx === 0 ? 'bg-amber-400 text-slate-950' : 
+                              idx === 0 ? 'bg-amber-400 text-slate-950 shadow-[0_0_10px_rgba(245,158,11,0.4)]' : 
                               idx === 1 ? 'bg-slate-300 text-slate-950' : 
-                              idx === 2 ? 'bg-amber-700 text-white' : 'bg-slate-800 text-slate-400']">
+                              idx === 2 ? 'bg-amber-700 text-white' : 'bg-slate-900 text-slate-400']">
                   {{ idx + 1 }}
                 </span>
                 <span class="font-bold text-slate-200">
                   {{ row.user }} 
-                  <span class="text-[8px] text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded ml-1.5">Lvl: {{ row.diff?.toUpperCase() || 'NORMAL' }}</span>
+                  <span class="text-[8px] text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded ml-1.5">ด่าน: {{ row.diff?.toUpperCase() || 'NORMAL' }}</span>
                   <span class="text-[8px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded ml-1">{{ getDeptName(row.dept).split(' ')[0] }}</span>
                 </span>
               </div>
               <span class="font-bold text-amber-400">฿{{ formatValuation(row.score) }}</span>
             </div>
             
-            <div v-if="getFilteredLeaderboard().length === 0" class="text-center py-4 text-slate-500 text-xs">
+            <div v-if="getFilteredLeaderboard().length === 0" class="text-center py-4 text-slate-600 text-xs font-bold">
               ยังไม่พบข้อมูลผู้บริหารประวัติคะแนนของแผนกนี้
             </div>
           </div>
 
           <button @click="resetGame" 
-                  class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 py-3 rounded-2xl font-bold text-sm transition-all border border-slate-700">
+                  class="cyber-btn w-full bg-slate-900 hover:bg-slate-850 text-slate-200 py-3 rounded-2xl font-bold text-sm transition-all border border-slate-800 shadow-md">
             <i class="fa-solid fa-rotate-left mr-2"></i> กลับไปท้าทายใหม่อีกรอบ
           </button>
         </div>
@@ -480,7 +525,7 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
     import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, query, addDoc, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // ────────────────────────────────────────────────────────────────────────
-    // ⚙️ CONFIGURATION: ค่าเชื่อมต่อคลาวด์บริษัทจริงของคุณ
+    // ⚙️ CONFIGURATION: เชื่อมต่อเข้า Firebase คลาวด์ตรงของคุณ
     // ────────────────────────────────────────────────────────────────────────
     const companyFirebaseConfig = {
       apiKey: "AIzaSyD1TMotoE7PZyVZ8MyNlbvUPtzS2gOGWFg",
@@ -494,7 +539,7 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
 
     const isLocalEnv = typeof __firebase_config !== 'undefined';
     const firebaseConfig = isLocalEnv ? JSON.parse(__firebase_config) : companyFirebaseConfig;
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'corporate-ceo-simulator-dept-production';
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'corporate-ceo-simulator-card-deck-prod';
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -504,12 +549,11 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
 
     createApp({
       setup() {
-        const view = ref('login'); // login, intro, play, encounter, result
+        const view = ref('login'); // login, intro, play, result
         const user = ref(null);
         const userDisplayName = ref('');
         const userEmail = ref('');
         const score = ref(0);
-        const currentIdx = ref(0);
         const submitting = ref(false);
         const scoreSubmitted = ref(false);
         const leaderboard = ref([]);
@@ -520,15 +564,16 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
         const difficulty = ref('normal'); // normal, hard, expert
         const actionPoints = ref(3);
         const toast = ref({ show: false, message: '', type: 'success' });
-        const boardTab = ref('all'); // คุมฟิลเตอร์แท็บบอร์ดแสดงผล
+        const boardTab = ref('all'); // แท็บแยกผลลัพธ์ลีดเดอร์บอร์ด
 
-        // ช่องสำหรับผู้ใช้ทั่วไปกรอกชื่อเล่นเพื่อใช้เล่นและจัดอันดับ (Guest custom nickname)
         const guestNameInput = ref('');
+        const valuationHistory = ref([]); // ประวัติคะแนนวาดกราฟเส้น
 
-        // ประวัติตามเก็บคะแนนวาดกราฟเส้นตอนจบ
-        const valuationHistory = ref([]);
+        // สถานะบอสประจำไตรมาส (Quarter Bosses)
+        const currentQuarter = ref(1);
+        const activeCrisis = ref({ title: '', hp: 100, maxHp: 100, damageDesc: '' });
 
-        // ตัวแปรทรัพยากรหลัก
+        // ทรัพยากรองค์กรหลัก
         const resources = ref({
           budget: 120000,
           talent: 80,
@@ -537,268 +582,185 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
           debt: 0
         });
 
-        // 📝 สถานการณ์วิกฤตแผนก (1 สำหรับแต่ละแผนก เพื่อใช้ในระบบเดินพูดคุยของ RPG)
-        const activeEncounterDept = ref('it');
-        const activeCrisis = ref({});
-        const completedQuests = ref({
-          it: false,
-          hr: false,
-          finance: false,
-          marketing: false
-        });
+        // สำรับการ์ดทั้งหมด (Deck Machine States)
+        const deck = ref([]);
+        const hand = ref([]);
+        const discardPile = ref([]);
 
-        const scenariosIT = [
-          {
-            event: "วิกฤต IT: คลาวด์หลังบ้านล่มระหว่างช่วงมหกรรมจัดแคมเปญใหญ่ (Downtime Crisis) ดึงระบบประมวลผลล่มสลาย ลูกค้าโมโหในโซเชียล",
-            opts: [
-              { text: "ลงทุนเปลี่ยนไปใช้สถาปัตยกรรมแบบ Multi-Cloud ทันทีเพื่อให้ระบบแทนที่อัตโนมัติ", budget: -40000, talent: -5, innovation: 35, reputation: 10 },
-              { text: "ดึงกำลังพนักงานไอทีเก่ง ๆ สแตนบายแก้โค้ดเฉพาะหน้าแบบยาวนานตลอด 48 ชั่วโมง", budget: -10000, talent: -30, innovation: 10, reputation: 5 },
-              { text: "โพสต์แจงขออภัยในปัญหา พร้อมออกประกาศปิดบำรุงรักษาระบบชั่วคราวเพื่อลดโหลดข้อมูล", budget: 0, talent: 0, innovation: -10, reputation: -20 }
-            ]
-          }
+        // 🧠 คลังการ์ดจำลองแผนงาน (Cyber Corporate Cards)
+        const allCards = [
+          { name: "System Overhaul", dept: "it", ap: 1, costDesc: "-฿15,000", effectDesc: "-40 Crisis | +15% Innov", desc: "ลงทุนอัปเดตแกนสถาปัตยกรรมคลาวด์หลังบ้าน", action: (res) => { res.budget -= 15000; res.innovation = Math.min(res.innovation + 15, 100); return 40; } },
+          { name: "AI Coding Copilot", dept: "it", ap: 1, costDesc: "-฿10,000", effectDesc: "-30 Crisis | +25% Innov", desc: "แจกจ่ายซอฟต์แวร์ปัญญาประดิษฐ์ให้พนักงานเขียนระบบ", action: (res) => { res.budget -= 10000; res.innovation = Math.min(res.innovation + 25, 100); return 30; } },
+          { name: "Cyber Firewall v5", dept: "it", ap: 1, costDesc: "-฿5,000", effectDesc: "-20 Crisis | ป้องกันสถานะล้มเหลว", desc: "วางระบบความปลอดภัยป้องกันปัญหาระบบหลุด", action: (res) => { res.budget -= 5000; return 20; } },
+          
+          { name: "Hologram Training", dept: "hr", ap: 2, costDesc: "-฿15,000", effectDesc: "-50 Crisis | +30% Talent", desc: "เวิร์กชอปยกระดับทักษะแรงบันดาลใจด้วยโลกจำลอง", action: (res) => { res.budget -= 15000; res.talent = Math.min(res.talent + 30, 100); return 50; } },
+          { name: "Wellness Package", dept: "hr", ap: 1, costDesc: "-฿10,000", effectDesc: "-30 Crisis | +20% Talent", desc: "สวัสดิการส่งเสริมสุขภาพใจเพื่อขจัดปัญหาหมดไฟพนักงาน", action: (res) => { res.budget -= 10000; res.talent = Math.min(res.talent + 20, 100); return 30; } },
+          { name: "Pulse Survey OKR", dept: "hr", ap: 1, costDesc: "-฿5,000", effectDesc: "-20 Crisis | +15% Talent", desc: "ประเมินพฤติกรรมการแชร์ผลสัมฤทธิ์อย่างเป็นธรรม", action: (res) => { res.budget -= 5000; res.talent = Math.min(res.talent + 15, 100); return 20; } },
+          
+          { name: "Tax FX Hedging", dept: "finance", ap: 1, costDesc: "-฿10,000", effectDesc: "-25 Crisis | +฿40,000 งบ", desc: "ทำประกันความเสี่ยงเงินตราผันผวนและบัญชีภาษี", action: (res) => { res.budget += 30000; return 25; } },
+          { name: "Invoice Factoring", dept: "finance", ap: 1, costDesc: "0 AP", effectDesc: "+฿35,000 งบ | -5% ชื่อเสียง", desc: "นำใบวางบิลล่วงหน้าไปรับเงินสดทันทีพยุงกระแสเงิน", action: (res) => { res.budget += 35000; res.reputation = Math.max(res.reputation - 5, 0); return 15; } },
+          { name: "Cost Optimization", dept: "finance", ap: 2, costDesc: "0 AP", effectDesc: "-30 Crisis | -10% ทีมงาน", desc: "ปลดโครงการย่อยที่ไม่ก่อกำไร เพื่อดึงพอร์ตเงินสดสด", action: (res) => { res.talent = Math.max(res.talent - 10, 0); return 30; } },
+          
+          { name: "Viral Hype PR", dept: "marketing", ap: 1, costDesc: "-฿15,000", effectDesc: "-40 Crisis | +25% Rep", desc: "เปิดตัวฟีดบอร์ดโฆษณาเชิงบวกและลบล้างดราม่าสังคม", action: (res) => { res.budget -= 15000; res.reputation = Math.min(res.reputation + 25, 100); return 40; } },
+          { name: "Community Campaign", dept: "marketing", ap: 1, costDesc: "-฿10,000", effectDesc: "-30 Crisis | +20% Rep", desc: "จัดกิจกรรมสร้างแคมเปญ ESG ดึงภาพลักษณ์แบรนด์สากล", action: (res) => { res.budget -= 10000; res.reputation = Math.min(res.reputation + 20, 100); return 30; } },
+          { name: "Affiliate Network", dept: "marketing", ap: 1, costDesc: "-฿5,000", effectDesc: "-20 Crisis | +15% Rep", desc: "กระจายพอร์ตงานขายผ่านระบบช่วยเหลือพาร์ตเนอร์ย่อย", action: (res) => { res.budget -= 5000; res.reputation = Math.min(res.reputation + 15, 100); return 20; } }
         ];
 
-        const scenariosHR = [
-          {
-            event: "วิกฤต HR: วิกฤตพนักงานหมดไฟและการลาออกแบบเงียบ ๆ (Quiet Quitting Crisis) อัตราความผูกพันลดต่ำสุด ดัชนีความเหนื่อยพุ่งสูง",
-            opts: [
-              { text: "ปรับเพิ่มมาตรการสวัสดิการสันทนาการ และปรับลดเวลาทำงานสัปดาห์ลง", budget: -25000, talent: 35, innovation: 5, reputation: 10 },
-              { text: "สั่งทีมหัวหน้างานเร่งกดดัน ตรวจจับความคืบหน้างานของพนักงานผ่านซอฟต์แวร์เช็คจอ", budget: -5000, talent: -30, innovation: 10, reputation: -15 },
-              { text: "จัดกิจกรรม Team Building กีฬาสีสังสรรค์ครั้งใหญ่ในวันหยุดเพื่อเรียกพลังกลับคืน", budget: -15500, talent: -5, innovation: -5, reputation: 15 }
-            ]
-          }
-        ];
-
-        const scenariosFinance = [
-          {
-            event: "วิกฤตการเงิน: สภาพคล่องกระแสเงินสดติดลบ (Cash Flow Deficit) ลูกค้าจ่ายล่าช้า ทำให้พอร์ตเงินสดสดประคองซัพพลายเออร์ลำบาก",
-            opts: [
-              { text: "ยอมรับเงื่อนไขการใช้ใบแจ้งหนี้กู้ยืมระยะสั้น (Factoring) ยอมเสียดอกเบี้ยเพื่อเงินด่วน", budget: -15000, talent: 0, innovation: 0, reputation: 25 },
-              { text: "ดึงยืดกำหนดเวลาชำระเงินกับซัพพลายเออร์ออกไปอีก 60 วัน เพื่อประคองพอร์ต", budget: 0, talent: 0, innovation: -10, reputation: -25 },
-              { text: "เลื่อนจ่ายโบนัสไตรมาสแรกของพนักงานออกไป เพื่อเก็บสภาพคล่องไว้จ่ายค่าสินค้า", budget: 10000, talent: -35, innovation: 0, reputation: -10 }
-            ]
-          }
-        ];
-
-        const scenariosMarketing = [
-          {
-            event: "วิกฤต PR: ดราม่าเชิงสังคมจากแคมเปญโฆษณาที่อ่อนไหว (Viral PR Disaster) สื่อประชาสัมพันธ์ตัวใหม่ทำพลาด ดึงชาวเน็ตแชร์ถล่ม",
-            opts: [
-              { text: "ถอดโฆษณาออกทันทีภายใน 1 ชั่วโมง ออกแถลงการณ์ขอโทษ และปลดพาร์ตเนอร์เอเจนซี่", budget: -25000, talent: -10, innovation: 0, reputation: 45 },
-              { text: "ปล่อยแคมเปญรันต่อ และจ้างทีมงานอินฟลูเอนเซอร์มาช่วยเขียนอธิบายเจตนาที่แท้จริง", budget: -15000, talent: 5, innovation: 10, reputation: -10 },
-              { text: "เพิกเฉย และจัดโปรโมชันลดราคาสินค้าเพื่อดึงดูดกระแสยอดขายกลับคืน", budget: -20000, talent: 0, innovation: -5, reputation: -25 }
-            ]
-          }
+        // วิกฤตการณ์แต่ละด่าน (Quarterly Boss Master Database)
+        const crisisData = [
+          { title: "ระบบ Cloud ล่มพอร์ตบิ๊กดาต้าพัง (IT Outage)", maxHp: 100, damage: (res) => { res.reputation -= 15; res.budget -= 5000; }, damageDesc: "หักลบกระทันหัน -15% ชื่อเสียง และ -฿5,000 งบประมาณ ทุกรอบเทิร์น!" },
+          { title: "มรสุมพนักงาน Quiet Quitting ยกแผง", maxHp: 130, damage: (res) => { res.talent -= 15; res.innovation -= 10; }, damageDesc: "หักลดพนักงาน -15% พลังทีมงาน และ -10% นวัตกรรม ทุกรอบเทิร์น!" },
+          { title: "สภาพคล่องวิกฤตเงินสดติดลบหนัก (Tax Audit)", maxHp: 160, damage: (res) => { res.budget -= 20000; res.reputation -= 10; }, damageDesc: "หักโหดกระแสเงิน -฿20,000 งบประมาณ และ -10% ชื่อเสียง ทุกรอบเทิร์น!" },
+          { title: "ศึกแย่งชิงส่วนแบ่งตลาดแชมป์เปี้ยนใหม่", maxHp: 200, damage: (res) => { res.budget -= 10000; res.talent -= 10; res.reputation -= 10; res.innovation -= 10; }, damageDesc: "สภาวะสูงสุด: หักลดทรัพยากรทุกฝ่ายงานอย่างละ 10% ทุกรอบเทิร์น!" }
         ];
 
         // ────────────────────────────────────────────────────────────────────────
-        // 🕹️ RPG 2D ENGINE (Canvas Top-down Mechanics)
+        // CARD DECK ENGINE LOGIC
         // ────────────────────────────────────────────────────────────────────────
-        let canvas, ctx, animationFrameId;
-        const tileSize = 32;
-        const mapRows = 10;
-        const mapCols = 15; // 480x320 แคนวาส
-
-        const playerPos = { x: 7, y: 5 }; // เริ่มตรงกลาง
-        const npcs = ref([
-          { dept: 'it', x: 2, y: 2, char: '💻', resolved: false, color: '#a855f7' },
-          { dept: 'hr', x: 12, y: 2, char: '❤️', resolved: false, color: '#ec4899' },
-          { dept: 'finance', x: 2, y: 7, char: '💵', resolved: false, color: '#10b981' },
-          { dept: 'marketing', x: 12, y: 7, char: '📣', resolved: false, color: '#f59e0b' }
-        ]);
-
-        const boardroomDesk = { x: 7, y: 4 };
-
-        // แผนผังกำแพงออฟฟิศ (1 = กำแพง/โต๊ะทำงานเดินไม่ได้, 0 = ทางเดิน)
-        const officeMap = [
-          [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-          [1,0,0,0,0,1,0,0,0,1,0,0,0,0,1],
-          [1,0,0,0,0,1,0,0,0,1,0,0,0,0,1],
-          [1,1,1,0,0,1,0,1,0,1,0,0,1,1,1],
-          [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-          [1,0,0,0,0,0,1,0,1,0,0,0,0,0,1],
-          [1,1,1,0,0,1,0,0,0,1,0,0,1,1,1],
-          [1,0,0,0,0,1,0,0,0,1,0,0,0,0,1],
-          [1,0,0,0,0,1,0,0,0,1,0,0,0,0,1],
-          [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-        ];
-
-        // รายการไอเด็มสปอน์พยุงชีพ (โบนัสคูปองเงินสด และแต้มพลัง AP)
-        const collectibles = ref([
-          { x: 4, y: 2, type: 'cash', collected: false },
-          { x: 10, y: 2, type: 'cash', collected: false },
-          { x: 4, y: 8, type: 'ap', collected: false },
-          { x: 10, y: 8, type: 'ap', collected: false }
-        ]);
-
-        const startRpgLoop = () => {
-          nextTick(() => {
-            canvas = document.getElementById('rpgCanvas');
-            if (!canvas) return;
-            ctx = canvas.getContext('2d');
-            
-            // ยกเลิกลูปเก่าถ้ามีค้าง
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            
-            // จับคีย์บอร์ดการควบคุม
-            window.addEventListener('keydown', handleKeydown);
-            renderRpg();
-          });
+        const initializeDeck = () => {
+          // โคลนสำรับการ์ดมาตรฐาน
+          let tempDeck = JSON.parse(JSON.stringify(allCards));
+          
+          // สับเสริมการ์ดประจำคลาสแผนกตนเองเพื่อเป็น Buff เริ่มต้น
+          const classSpecificCards = tempDeck.filter(c => c.dept === selectedDept.value);
+          tempDeck = tempDeck.concat(JSON.parse(JSON.stringify(classSpecificCards))); // เบิ้ลการ์ดแผนกตัวเองเข้าไป
+          
+          deck.value = shuffle(tempDeck);
+          hand.value = [];
+          discardPile.value = [];
         };
 
-        const stopRpgLoop = () => {
-          if (animationFrameId) cancelAnimationFrame(animationFrameId);
-          window.removeEventListener('keydown', handleKeydown);
+        const shuffle = (array) => {
+          let currentIndex = array.length, randomIndex;
+          while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+          }
+          return array;
         };
 
-        const handleKeydown = (e) => {
+        const drawCards = (num) => {
+          for (let i = 0; i < num; i++) {
+            if (deck.value.length === 0) {
+              if (discardPile.value.length === 0) break; // การ์ดหมดเด็คจริงๆ
+              deck.value = shuffle(discardPile.value);
+              discardPile.value = [];
+            }
+            hand.value.push(deck.value.pop());
+          }
+        };
+
+        const playCard = (card, idx) => {
           if (view.value !== 'play') return;
-          let nextX = playerPos.x;
-          let nextY = playerPos.y;
-
-          if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { e.preventDefault(); nextY--; }
-          else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { e.preventDefault(); nextY++; }
-          else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { e.preventDefault(); nextX--; }
-          else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { e.preventDefault(); nextX++; }
-
-          tryMove(nextX, nextY);
-        };
-
-        const movePlayer = (direction) => {
-          let nextX = playerPos.x;
-          let nextY = playerPos.y;
-          if (direction === 'up') nextY--;
-          if (direction === 'down') nextY++;
-          if (direction === 'left') nextX--;
-          if (direction === 'right') nextX++;
-          tryMove(nextX, nextY);
-        };
-
-        const tryMove = (nextX, nextY) => {
-          // เช็คขอบเขตกำแพง
-          if (nextY >= 0 && nextY < mapRows && nextX >= 0 && nextX < mapCols) {
-            if (officeMap[nextY][nextX] === 0) {
-              playerPos.x = nextX;
-              playerPos.y = nextY;
-              checkCollisions();
-            }
-          }
-        };
-
-        // ตรวจเช็คการชนไอเท็ม และ ชนโต๊ะทำงานหัวหน้าฝ่ายต่าง ๆ
-        const checkCollisions = () => {
-          // 1. ตรวจชนไอเท็ม
-          collectibles.value.forEach(item => {
-            if (!item.collected && item.x === playerPos.x && item.y === playerPos.y) {
-              item.collected = true;
-              if (item.type === 'cash') {
-                resources.value.budget += 10000;
-                showToast("เก็บคูปองกระแสเงินสดบริษัท: +฿10,000 งบประมาณ!", "success");
-              } else {
-                actionPoints.value += 1;
-                showToast("เก็บแบตเตอรี่สำรองพลังบริหารงาน: +1 AP!", "success");
-              }
-            }
-          });
-
-          // 2. ตรวจชนบอร์ด Desk สรุปไตรมาสตรงกลาง
-          if (playerPos.x === boardroomDesk.x && playerPos.y === boardroomDesk.y) {
-            if (getRemainingTasksCount() === 0) {
-              triggerEndGame('victory');
-            } else {
-              showToast(`กรุณาเดินทางคุยปัญหาเควสต์กับหัวหน้าแผนกให้ครบถ้วนก่อนปิดไตรมาสครับ (เหลืออีก ${getRemainingTasksCount()} แผนก)`, "error");
-              // เด้งถอยหลังเพื่อไม่ให้ติดอยู่ในโต๊ะ
-              playerPos.y++;
-            }
+          if (actionPoints.value < card.ap) {
+            showToast("แต้มพลังงาน AP ไม่เพียงพอสำหรับแผนกลยุทธ์นี้!", "error");
             return;
           }
 
-          // 3. ตรวจสอบการเดินชน NPC หัวหน้าแผนก
-          npcs.value.forEach(npc => {
-            if (!npc.resolved && Math.abs(playerPos.x - npc.x) <= 1 && Math.abs(playerPos.y - npc.y) <= 1) {
-              triggerEncounter(npc.dept);
-            }
-          });
-        };
+          // หักพลังงาน
+          actionPoints.value -= card.ap;
 
-        // วาดภาพสำนักงาน 2D Cyberpunk RPG ลงแคนวาส
-        const renderRpg = () => {
-          if (view.value !== 'play') return;
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          // คำนวณความรุนแรงตัวคูณความเก่งตามด่านความยาก
+          let diffMultiplier = 1.0;
+          if (difficulty.value === 'hard') diffMultiplier = 0.85; // บัฟฟ์โดนหักเยอะกว่าปกติ
+          if (difficulty.value === 'expert') diffMultiplier = 0.70;
 
-          // วาดพรมสำนักงานตารางกริด
-          for (let r = 0; r < mapRows; r++) {
-            for (let c = 0; c < mapCols; c++) {
-              if (officeMap[r][c] === 1) {
-                // กำแพง/โต๊ะทำงาน
-                ctx.fillStyle = '#0f172a';
-                ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
-                ctx.strokeStyle = '#1e293b';
-                ctx.strokeRect(c * tileSize, r * tileSize, tileSize, tileSize);
-                
-                // ขอบเส้นนีออน
-                ctx.fillStyle = '#312e81';
-                ctx.fillRect(c * tileSize + 4, r * tileSize + 4, tileSize - 8, tileSize - 8);
-              } else {
-                // พื้นทางเดิน
-                ctx.fillStyle = '#05070f';
-                ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
-                ctx.strokeStyle = '#0f172a';
-                ctx.strokeRect(c * tileSize, r * tileSize, tileSize, tileSize);
-              }
-            }
+          // แสดงผลลัพธ์การเล่น
+          const damageToCrisis = Math.round(card.action(resources.value) * diffMultiplier);
+          activeCrisis.value.hp = Math.max(activeCrisis.value.hp - damageToCrisis, 0);
+
+          // เอฟเฟกต์เด้งคะแนนแจ้งเตือน
+          showToast(`ใช้งานแผนงาน "${card.name}": เคลียร์วิกฤตได้ ${damageToCrisis} แต้ม!`);
+
+          // ตรวจสอบเช็คพาสซีฟติดตัวพิเศษ (Passive Buff Class Activation)
+          if (selectedDept.value === 'hr' && card.dept === 'hr') {
+            resources.value.budget += 5000; // HR นำคนเก่ง คืนเงินได้ด้วย
           }
 
-          // วาดโต๊ะบอร์ดบริหารตรงกลางออฟฟิศ
-          ctx.fillStyle = '#8b5cf6';
-          ctx.fillRect(boardroomDesk.x * tileSize + 2, boardroomDesk.y * tileSize + 2, tileSize - 4, tileSize - 4);
-          ctx.font = '10px sans-serif';
-          ctx.fillStyle = '#ffffff';
-          ctx.fillText('👔 Desk', boardroomDesk.x * tileSize + 2, boardroomDesk.y * tileSize - 4);
+          // ย้ายการ์ดใบที่ใช้แล้วไปห้องทิ้ง (Discard Pile)
+          discardPile.value.push(hand.value.splice(idx, 1)[0]);
 
-          // วาดไอเท็มสปอน์รอบ ๆ
-          collectibles.value.forEach(item => {
-            if (!item.collected) {
-              ctx.font = '16px sans-serif';
-              ctx.fillText(item.type === 'cash' ? '💵' : '⚡', item.x * tileSize + 8, item.y * tileSize + 22);
-            }
-          });
+          // เช็คเงื่อนไขล้มละลายทันท่วงที
+          if (resources.value.budget <= 0 || resources.value.talent <= 0 || resources.value.innovation <= 0 || resources.value.reputation <= 0) {
+            triggerEndGame('bankrupt');
+            return;
+          }
 
-          // วาดหัวหน้าแผนก (NPCs)
-          npcs.value.forEach(npc => {
-            ctx.fillStyle = npc.resolved ? '#10b981' : npc.color;
-            ctx.beginPath();
-            ctx.arc(npc.x * tileSize + tileSize / 2, npc.y * tileSize + tileSize / 2, 12, 0, Math.PI * 2);
-            ctx.fill();
-
-            // อีโมจิแสดงตัวตนแผนก
-            ctx.font = '14px sans-serif';
-            ctx.fillText(npc.char, npc.x * tileSize + 9, npc.y * tileSize + 22);
-
-            // ชื่อย่อแผนกกำกับด้านบน
-            ctx.font = '8px Arial';
-            ctx.fillStyle = '#94a3b8';
-            ctx.fillText(npc.dept.toUpperCase(), npc.x * tileSize + 4, npc.y * tileSize - 2);
-          });
-
-          // วาดตัวละครผู้บริหาร (Player CEO)
-          ctx.fillStyle = '#6366f1';
-          ctx.beginPath();
-          ctx.arc(playerPos.x * tileSize + tileSize / 2, playerPos.y * tileSize + tileSize / 2, 13, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#ec4899';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-
-          ctx.font = '14px sans-serif';
-          ctx.fillText('😎', playerPos.x * tileSize + 9, playerPos.y * tileSize + 22);
-
-          animationFrameId = requestAnimationFrame(renderRpg);
+          // ตรวจสอบว่าบอสรายไตรมาสถูกลบล้างวิกฤตจนหมดหรือไม่
+          if (activeCrisis.value.hp <= 0) {
+            nextQuarter();
+          }
         };
 
+        const endTurn = () => {
+          // 1. วิกฤตการณ์ประจำไตรมาสสร้างความเสียหาย (Boss Turn Attack)
+          activeCrisis.value.damage(resources.value);
+          
+          // หักเงินสะสมต้นทุนหนี้ถ้ามี
+          if (resources.value.debt > 0) {
+            const interest = Math.round(resources.value.debt * 0.15);
+            resources.value.budget -= interest;
+          }
+
+          // เช็คหลังโดนบอสสวนกลับ
+          if (resources.value.budget <= 0 || resources.value.talent <= 0 || resources.value.innovation <= 0 || resources.value.reputation <= 0) {
+            triggerEndGame('bankrupt');
+            return;
+          }
+
+          // 2. ทิ้งการ์ดทั้งหมดบนมือ และจั่วการ์ดใหม่ 5 ใบ
+          discardPile.value = discardPile.value.concat(hand.value);
+          hand.value = [];
+          
+          actionPoints.value = 3; // รีเซ็ตพลังงานกลับเป็น 3 AP
+          drawCards(5);
+
+          showToast("จบบริหารรอบเทิร์น: บอสวิกฤตเคลื่อนไหวและสร้างความเสียหาย!");
+        };
+
+        const nextQuarter = () => {
+          // บันทึกประวัติเพื่อแสดงกราฟเส้นตอนจบ
+          valuationHistory.value.push(calculateValuation());
+
+          if (currentQuarter.value < 4) {
+            currentQuarter.value++;
+            const data = crisisData[currentQuarter.value - 1];
+            
+            // สุ่มแต้มพลังชีวิตตามระดับความยาก
+            let hpMult = 1.0;
+            if (difficulty.value === 'hard') hpMult = 1.25;
+            if (difficulty.value === 'expert') hpMult = 1.5;
+
+            activeCrisis.value = {
+              title: data.title,
+              hp: Math.round(data.maxHp * hpMult),
+              maxHp: Math.round(data.maxHp * hpMult),
+              damage: data.damage,
+              damageDesc: data.damageDesc
+            };
+
+            // ล้างมือและจั่วการ์ดใหม่ฉลองไตรมาสใหม่
+            discardPile.value = discardPile.value.concat(hand.value);
+            hand.value = [];
+            actionPoints.value = 3;
+            drawCards(5);
+
+            showToast(`🎉 ผ่านช่วงประเมิน! เข้าสู่ไตรมาสที่ ${currentQuarter.value} เผชิญหน้าวิกฤตใหม่!`, "success");
+          } else {
+            // สำเร็จครบ 4 ไตรมาส ปิดงบสวยงาม
+            triggerEndGame('victory');
+          }
+        };
+
+        const executeRescueLoan = () => {
+          resources.value.budget += 50000;
+          resources.value.debt += 50000;
+          showToast("อนุมัติเงินกู้พยุงพอร์ตฉุกเฉิน: ได้รับ ฿50,000 พ่วงหนี้จ่ายสะสม!", "success");
+        };
 
         // ────────────────────────────────────────────────────────────────────────
-        // HELPER FUNCTIONS & UI GETTERS
+        // CORE UI GETTERS & GAME CONTROLLER
         // ────────────────────────────────────────────────────────────────────────
         const formatValuation = (val) => {
           return Math.round(val).toLocaleString();
@@ -806,10 +768,6 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
 
         const getPercentage = (value, max) => {
           return Math.min(Math.max((value / max) * 100, 0), 100);
-        };
-
-        const getRemainingTasksCount = () => {
-          return npcs.value.filter(n => !n.resolved).length;
         };
 
         const getDeptName = (dept) => {
@@ -821,30 +779,30 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
 
         const setDepartment = (dept) => {
           selectedDept.value = dept;
-          showToast(`เปลี่ยนทักษะเป็นสายงาน ${getDeptName(dept)} สำเร็จ!`, "success");
+          showToast(`เปลี่ยนทักษะเป็นคลาสสายอาชีพ ${getDeptName(dept)}!`, "success");
         };
 
         const setDifficulty = (level) => {
           difficulty.value = level;
-          showToast(`ปรับด่านท้าทายวิกฤตเป็นระดับ ${level.toUpperCase()}!`);
+          showToast(`เปลี่ยนความยากเป็นระดับ ${level.toUpperCase()}!`);
         };
 
-        // ────────────────────────────────────────────────────────────────────────
-        // HELPER FUNCTIONS & FIREBASE AUTH SYSTEMS
-        // ────────────────────────────────────────────────────────────────────────
         const showToast = (message, type = 'success') => {
           toast.value = { show: true, message, type };
           setTimeout(() => { toast.value.show = false; }, 3500);
         };
 
+        // ────────────────────────────────────────────────────────────────────────
+        // AUTHENTICATION MODULES
+        // ────────────────────────────────────────────────────────────────────────
         const loginWithGoogle = async () => {
           authLoading.value = true;
           const provider = new GoogleAuthProvider();
           try {
             await signInWithPopup(auth, provider);
-            showToast("ยืนยันสิทธิ์ล็อกอินสำเร็จ!", "success");
+            showToast("ยืนยันสิทธิ์สำเร็จ!", "success");
           } catch (error) {
-            console.error("Google Auth Fail:", error);
+            console.error(error);
             showToast(`สิทธิ์ขัดข้อง: [${error.code || 'UNKNOWN'}]`, "error");
           } finally {
             authLoading.value = false;
@@ -856,16 +814,16 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
           try {
             const rawName = guestNameInput.value.trim();
             if (!rawName) {
-              showToast("กรุณาระบุชื่อเล่นเพื่อเข้าร่วมประเมินบอร์ดด้วยครับ!", "error");
+              showToast("กรุณาระบุนามสมมติเพื่อใช้บันทึกบอร์ดประเมิน!", "error");
               authLoading.value = false;
               return;
             }
-            localStorage.setItem('ceo_guest_nickname', rawName);
+            localStorage.setItem('ceo_card_nickname', rawName);
             await signInAnonymously(auth);
             showToast(`ยินดีต้อนรับ CEO ${rawName}!`, "success");
           } catch (e) {
             console.error(e);
-            showToast("เข้าระบบแบบผู้สังเกตการณ์ขัดข้อง", "error");
+            showToast("โมดูลล็อกอินนิรนามขัดข้อง", "error");
           } finally {
             authLoading.value = false;
           }
@@ -878,7 +836,7 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
 
         onMounted(async () => {
           authLoading.value = true;
-          const savedNickname = localStorage.getItem('ceo_guest_nickname');
+          const savedNickname = localStorage.getItem('ceo_card_nickname');
           if (savedNickname) {
             guestNameInput.value = savedNickname;
           }
@@ -897,7 +855,7 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
             if (usr) {
               user.value = usr;
               if (usr.isAnonymous) {
-                const activeName = localStorage.getItem('ceo_guest_nickname');
+                const activeName = localStorage.getItem('ceo_card_nickname');
                 userDisplayName.value = activeName || 'Guest-CEO';
               } else {
                 userDisplayName.value = usr.displayName || usr.email?.split('@')[0] || 'Executive-CEO';
@@ -913,9 +871,10 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
         });
 
         // ────────────────────────────────────────────────────────────────────────
-        // GAME STRATEGY SYSTEM WITH RPG ADAPTATION
+        // GAME RUNTIME ACTIONS
         // ────────────────────────────────────────────────────────────────────────
         const startGame = () => {
+          // กำหนดสภาพเริ่มต้นเงินทุนตามความยาก
           if (difficulty.value === 'normal') {
             resources.value = { budget: 120000, talent: 80, innovation: 50, reputation: 60, debt: 0 };
           } else if (difficulty.value === 'hard') {
@@ -924,18 +883,30 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
             resources.value = { budget: 50000, talent: 60, innovation: 40, reputation: 45, debt: 0 };
           }
 
+          currentQuarter.value = 1;
           actionPoints.value = 3;
           valuationHistory.value = [calculateValuation()];
           scoreSubmitted.value = false;
 
-          // รีเซ็ต NPCs เควสต์และไอเท็มรอบออฟฟิศใหม่ทั้งหมด
-          npcs.value.forEach(n => n.resolved = false);
-          collectibles.value.forEach(item => item.collected = false);
-          playerPos.x = 7;
-          playerPos.y = 5;
+          // ดึงวิกฤตไตรมาสแรกขึ้นมาประเดิม
+          const data = crisisData[0];
+          let hpMult = 1.0;
+          if (difficulty.value === 'hard') hpMult = 1.25;
+          if (difficulty.value === 'expert') hpMult = 1.5;
+
+          activeCrisis.value = {
+            title: data.title,
+            hp: Math.round(data.maxHp * hpMult),
+            maxHp: Math.round(data.maxHp * hpMult),
+            damage: data.damage,
+            damageDesc: data.damageDesc
+          };
+
+          // เริ่มระดมจัดเด็คและการ์ด
+          initializeDeck();
+          drawCards(5);
 
           view.value = 'play';
-          startRpgLoop();
         };
 
         const calculateValuation = () => {
@@ -944,6 +915,7 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
           let innovMult = 400;
           let repMult = 400;
 
+          // สลับพาสซีฟและตัวคูณเด่นตามคลาสทักษะที่ใช้แก้ปัญหา
           if (selectedDept.value === 'it') innovMult = 1200;
           else if (selectedDept.value === 'hr') talentMult = 1200;
           else if (selectedDept.value === 'finance') budgetMult = 1.5;
@@ -953,105 +925,24 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
                          (resources.value.talent * talentMult) + 
                          (resources.value.innovation * innovMult) + 
                          (resources.value.reputation * repMult) - 
-                         (resources.value.debt * 1.3);
+                         (resources.value.debt * 1.5);
 
           return Math.max(Math.round(rawVal), 0);
         };
 
-        const triggerEncounter = (dept) => {
-          stopRpgLoop();
-          activeEncounterDept.value = dept;
-
-          // ดึงคำถามเฉพาะทางขึ้นมาเผชิญ
-          if (dept === 'it') activeCrisis.value = scenariosIT[0];
-          else if (dept === 'hr') activeCrisis.value = scenariosHR[0];
-          else if (dept === 'finance') activeCrisis.value = scenariosFinance[0];
-          else activeCrisis.value = scenariosMarketing[0];
-
-          view.value = 'encounter';
-        };
-
-        const makeDecisionInEncounter = (opt) => {
-          let multiplier = 1.0;
-          if (difficulty.value === 'hard') multiplier = 1.15;
-          if (difficulty.value === 'expert') multiplier = 1.3;
-
-          const finalBudgetChange = opt.budget * (opt.budget < 0 ? multiplier : 1.0);
-          const finalTalentChange = opt.talent * (opt.talent < 0 ? multiplier : 1.0);
-          const finalInnovationChange = opt.innovation * (opt.innovation < 0 ? multiplier : 1.0);
-          const finalReputationChange = opt.reputation * (opt.reputation < 0 ? multiplier : 1.0);
-
-          resources.value.budget += finalBudgetChange;
-          resources.value.talent = Math.min(Math.max(resources.value.talent + finalTalentChange, 0), 100);
-          resources.value.innovation = Math.min(Math.max(resources.value.innovation + finalInnovationChange, 0), 100);
-          resources.value.reputation = Math.min(Math.max(resources.value.reputation + finalReputationChange, 0), 100);
-
-          // หักดอกเบี้ยจ่ายจากหนี้เก่าพกพา
-          if (resources.value.debt > 0) {
-            const interest = Math.round(resources.value.debt * 0.15);
-            resources.value.budget -= interest;
-          }
-
-          // สุ่มพายุลุยแทรกสำหรับ Expert
-          if (difficulty.value === 'expert' && Math.random() < 0.5) {
-            resources.value.reputation = Math.max(resources.value.reputation - 10, 0);
-          }
-
-          // มาร์ก NPC ตัวนี้ว่าเคลียร์แล้ว
-          const targetNpc = npcs.value.find(n => n.dept === activeEncounterDept.value);
-          if (targetNpc) targetNpc.resolved = true;
-
-          valuationHistory.value.push(calculateValuation());
-
-          // เช็คสภาพล้มละลายทันควัน
-          if (resources.value.budget <= 0 || resources.value.talent <= 0 || resources.value.innovation <= 0 || resources.value.reputation <= 0) {
-            triggerEndGame('bankrupt');
-            return;
-          }
-
-          // กลับเข้าแผนที่หลักเพื่อลุยต่อ
-          view.value = 'play';
-          startRpgLoop();
-        };
-
-        const skipCrisisWithAP = () => {
-          if (actionPoints.value < 1) return;
-          actionPoints.value--;
-
-          // พยุงให้ผ่านปัญหาโดยไม่เสียทรัพยากรหลัก
-          const targetNpc = npcs.value.find(n => n.dept === activeEncounterDept.value);
-          if (targetNpc) targetNpc.resolved = true;
-
-          showToast("ใช้พลัง AP บริหารพยุงแผนกให้อยู่รอดข้ามผ่านวิกฤตเรียบร้อย!");
-          valuationHistory.value.push(calculateValuation());
-
-          view.value = 'play';
-          startRpgLoop();
-        };
-
-        const executeProject = (type) => {
-          // ยังคงฟังก์ชันสำหรับใช้ AP ไว้ข้ามเควสได้ทางใจความ
-          if (type === 'loan') {
-            resources.value.budget += 50000;
-            resources.value.debt += 50000;
-            showToast("กู้เงินด่วนกู้ชีพสำเร็จ: ได้รับ ฿50,000 พ่วงหนี้สะสม!", "success");
-          }
-        };
-
         const triggerEndGame = (result) => {
-          stopRpgLoop();
           score.value = calculateValuation();
           gameResult.value = result;
           view.value = 'result';
 
           if (result === 'victory') {
-            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+            confetti({ particleCount: 150, spread: 85, origin: { y: 0.6 } });
           }
 
-          // 📈 วาดกราฟสรุปประวัติผลลัพธ์
+          // 📈 วาดสรุปแนวโน้มกราฟเส้น
           nextTick(() => {
             const ctx = document.getElementById('valuationTrendChart').getContext('2d');
-            const labels = ['เริ่ม', 'IT', 'HR', 'Finance', 'PR'].slice(0, valuationHistory.value.length);
+            const labels = ['เริ่ม', 'Q1', 'Q2', 'Q3', 'Q4'].slice(0, valuationHistory.value.length);
 
             new Chart(ctx, {
               type: 'line',
@@ -1061,7 +952,7 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
                   label: 'มูลค่า (฿)',
                   data: valuationHistory.value,
                   borderColor: '#6366f1',
-                  backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                  backgroundColor: 'rgba(99, 102, 241, 0.15)',
                   borderWidth: 3,
                   pointBackgroundColor: '#ec4899',
                   tension: 0.35,
@@ -1082,11 +973,11 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
         };
 
         const getBadge = () => {
-          if (gameResult.value === 'bankrupt') return 'CEO กิจการล้มละลาย 📉';
+          if (gameResult.value === 'bankrupt') return 'CEO แผนพับล้มละลาย 📉';
           const maxVal = (200000 * 1.5) + (100 * 1200) + (100 * 1200) + (100 * 1200);
-          if (score.value >= maxVal * 0.6) return 'RPG Unicorn Ruler 🦄';
-          if (score.value >= maxVal * 0.4) return 'RPG Elite Executive 👔';
-          return 'RPG Office Explorer 🚀';
+          if (score.value >= maxVal * 0.6) return 'Slay the Market Unicorn 🦄';
+          if (score.value >= maxVal * 0.4) return 'Master Strategist Director 👔';
+          return 'Venture Capital Explorer 🚀';
         };
 
         const isCurrentUser = (name) => {
@@ -1099,16 +990,17 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
         };
 
         // ────────────────────────────────────────────────────────────────────────
-        // FIRESTORE DATABASE INTERACTION (Strict implementation for RULE 1/2/3)
+        // FIRESTORE LIVE LEADERBOARD (RULE 1, 2, 3 Compliant)
         // ────────────────────────────────────────────────────────────────────────
         const submitScoreToFirebase = async () => {
           if (!user.value) {
-            showToast("กรุณายืนยันสิทธิ์ล็อกอินก่อนบันทึก", "error");
+            showToast("กรุณายืนยันล็อกอินเพื่อเซฟคะแนนจัดอันดับ", "error");
             return;
           }
           submitting.value = true;
 
           try {
+            // Rule 1: strict paths
             const collectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'scores_v3_dept');
             
             await addDoc(collectionPath, {
@@ -1123,12 +1015,12 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
             });
 
             scoreSubmitted.value = true;
-            showToast("ส่งคะแนนของคุณไปบอร์ดคะแนนเรียงลำดับเรียลไทม์แล้ว!");
+            showToast("ส่งบันทึกความสามารถเข้าทำเนียบของบริษัทสำเร็จแล้ว!");
             
             startRealtimeLeaderboard();
           } catch (e) {
             console.error("Firebase submit error:", e);
-            showToast("ระบบคลาวด์ติดขัด: " + e.message, "error");
+            showToast("โมดูลคลาวด์จัดเก็บล้มเหลว: " + e.message, "error");
           } finally {
             submitting.value = false;
           }
@@ -1143,6 +1035,7 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
               rawScores.push(doc.data());
             });
 
+            // Rule 2: Sort in JS memory to avoid indexing requirements
             rawScores.sort((a, b) => b.score - a.score);
             leaderboard.value = rawScores;
           }, (err) => {
@@ -1158,14 +1051,14 @@ Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in the output.
         };
 
         return {
-          view, user, userDisplayName, score, currentIdx, toast, resources,
-          startGame, makeDecisionInEncounter, getBadge, isCurrentUser, resetGame,
+          view, user, userDisplayName, score, toast, resources,
+          startGame, playCard, getBadge, isCurrentUser, resetGame,
           submitScoreToFirebase, scoreSubmitted, submitting, leaderboard,
           loginWithGoogle, loginAnonymously, logout, authLoading, formatValuation,
           getPercentage, calculateValuation, gameResult, selectedDept, setDepartment,
           getDeptName, difficulty, setDifficulty, actionPoints,
-          executeProject, boardTab, getFilteredLeaderboard, guestNameInput,
-          getRemainingTasksCount, movePlayer, activeEncounterDept, activeCrisis, skipCrisisWithAP
+          boardTab, getFilteredLeaderboard, guestNameInput,
+          currentQuarter, activeCrisis, deck, hand, discardPile, endTurn, executeRescueLoan
         };
       }
     }).mount('#app');
